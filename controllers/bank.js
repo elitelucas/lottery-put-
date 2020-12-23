@@ -340,19 +340,16 @@ exports.postRecharge = async (req, res, next) => {
     user.email = req.body.email;
     const saved = await user.save();
     const data = await new Recharging(comp).save();
-    const sign = crypto.createHash('md5')
-        .update(`busi_code=${data.busi_code}&goods="Make deposit"&mer_no=${process.env.PAYMENT_NO}` +
-            `&mer_order_no=${data.id}&notifyUrl=${process.env.APP_URL + "/notify-recharge"}` +
-            `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
-            `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`).digest("hex");
-    // console.log(`busi_code=${data.busi_code}&goods="Make deposit"&mer_no=${process.env.PAYMENT_NO}` +
-    //     `&mer_order_no=${data.id}&notifyUrl=${process.env.APP_URL + "/notify-recharge"}` +
-    //     `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
-    //     `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`);
-    // console.log(sign);
-    
-
-    res.status(200).json({body:{ busi_code:data.busi_code,
+    // const sign = crypto.createHash('md5')
+    //     .update(`busi_code=${data.busi_code}&ccy_no="INR"&countryCode="IND"&goods="Make deposit"&mer_no=${process.env.PAYMENT_NO}` +
+    //         `&mer_order_no=${data.id}&notifyUrl=${process.env.APP_URL + "/notify-recharge"}` +
+    //         `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
+    //         `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`).digest("hex");
+    let body={
+        busi_code:data.busi_code,
+        ccy_no:"INR",
+        countryCode:"IND",
+        
         goods:"Make deposit",
         mer_no:process.env.PAYMENT_NO,
         mer_order_no:data.id,
@@ -362,8 +359,39 @@ exports.postRecharge = async (req, res, next) => {
         pemail:data.pemail,
         phone:data.phone,
         pname:data.pname,
-        sign:sign
-    },url:process.env.PAYMENT_DEPOSIT_URL});
+        
+    }
+
+    const sign = crypto.createHash('md5')
+    .update(`busi_code=${body.busi_code}&ccy_no=INR&countryCode=IND&goods=${body.goods}&mer_no=${body.mer_no}` +
+        `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
+        `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
+        `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&key=${process.env.PAYMENT_KEY}`).digest("hex");
+        console.log(`busi_code=${body.busi_code}&ccy_no="INR"&countryCode="IND"&goods=${body.goods}&mer_no=${body.mer_no}` +
+        `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
+        `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
+        `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&key=${process.env.PAYMENT_KEY}`);
+    // console.log(`busi_code=${data.busi_code}&goods="Make deposit"&mer_no=${process.env.PAYMENT_NO}` +
+    //     `&mer_order_no=${data.id}&notifyUrl=${process.env.APP_URL + "/notify-recharge"}` +
+    //     `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
+    //     `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`);
+    // console.log(sign);
+    body={...body, sign};
+    console.log(body);
+    await unirest
+    .post(process.env.PAYMENT_DEPOSIT_URL)
+    .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+    .encoding('utf-8')
+    .send(body)
+    .then(function (response) {
+        if(response.body.status=='SUCCESS'){
+            return res.status(200).json({url:response.body.order_data});
+        }else{
+            return res.status(400).json({});
+        }
+    })
+
+   
         
         
         
@@ -371,6 +399,8 @@ exports.postRecharge = async (req, res, next) => {
        
 };
 exports.postResponseRecharge = async (req, res, next) => {
+    console.log('page');
+    console.log(req);
     //Razorpay
     const order_ids = await Recharging.find().catch(err => {
         return res.redirect('/my/recharge');
@@ -424,8 +454,8 @@ exports.postResponseRecharge = async (req, res, next) => {
 
 };
 exports.postNotifyRecharge = (req, res, next) => {
-
-
+    console.log('notify');
+    console.log(req);
     return res.redirect('/my/recharge');
 
     // new Complaints(comp).save((err,user)=>{
