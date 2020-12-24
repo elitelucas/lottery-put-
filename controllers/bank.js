@@ -369,7 +369,7 @@ exports.postRecharge = async (req, res, next) => {
     .update(`busi_code=${body.busi_code}&ccy_no=INR&countryCode=IND&goods=${body.goods}&mer_no=${body.mer_no}` +
         `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
         `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
-        `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&key=${process.env.PAYMENT_KEY}`).digest("hex");
+        `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`).digest("hex");
         // console.log(`busi_code=${body.busi_code}&ccy_no="INR"&countryCode="IND"&goods=${body.goods}&mer_no=${body.mer_no}` +
         // `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
         // `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
