@@ -153,8 +153,8 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                     `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
                     `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`).digest("hex");
             console.log(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
-            `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
-            `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
+                `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
+                `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
             withdrawls.sign = sign;
             body = { ...body, sign };
             await unirest
@@ -444,11 +444,19 @@ exports.getResponseRecharge = async (req, res, next) => {
 exports.postNotifyRecharge = async (req, res, next) => {
     try {
         console.log(req.body);
-        console.log(req.body.order_amount);
         const recharging = await Recharging.findById(req.body.mer_order_no);
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log(ip);
-        if (recharging && recharging.sign == req.body.sign && ip == process.env.PAYMENT_IP && req.body.status == 'SUCCESS') {
+        const data = `busi_code=UPI&err_code=${req.body.err_code}&err_msg=${req.body.err_msg}` +
+            `&mer_no=${req.body.mer_no}&mer_order_no=${req.body.mer_order_no}` +
+            `&order_amount=${req.body.order_amount}&order_no=${req.body.order_no}&order_time=${req.body.order_time}` +
+            `&pay_amount=${req.body.pay_amount}&pay_time=${req.body.pay_time}&status=${req.body.status}&key=${process.env.PAYMENT_KEY}`
+        const sign = crypto.createHash('md5')
+            .update(data).digest("hex");
+        console.log(sign);
+        console.log(req.body.sign);
+        if (recharging && sign == req.body.sign && ip == process.env.PAYMENT_IP && req.body.status == 'SUCCESS') {
+           console.log('Succeed');
             const recharge = new Recharge();
             recharge.user = recharging.user;
             recharge.phone = recharging.phone;
