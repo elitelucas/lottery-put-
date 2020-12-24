@@ -32,6 +32,9 @@ const RechargingSchema = new Schema({
     type:String,
     index:true
   },
+  sign:{
+    type:String
+  },
 
   recharge_id:{
     type:String,

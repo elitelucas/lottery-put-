@@ -359,6 +359,7 @@ exports.postRecharge = async (req, res, next) => {
         pemail:data.pemail,
         phone:data.phone,
         pname:data.pname,
+        timeout_express:'30m'
         
     }
 
@@ -370,14 +371,16 @@ exports.postRecharge = async (req, res, next) => {
         console.log(`busi_code=${body.busi_code}&ccy_no="INR"&countryCode="IND"&goods=${body.goods}&mer_no=${body.mer_no}` +
         `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
         `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
-        `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&key=${process.env.PAYMENT_KEY}`);
+        `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`);
     // console.log(`busi_code=${data.busi_code}&goods="Make deposit"&mer_no=${process.env.PAYMENT_NO}` +
     //     `&mer_order_no=${data.id}&notifyUrl=${process.env.APP_URL + "/notify-recharge"}` +
     //     `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
     //     `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`);
     // console.log(sign);
+    data.sign=sign;
+    await sign.save();
     body={...body, sign};
-    console.log(body);
+    // console.log(body);
     await unirest
     .post(process.env.PAYMENT_DEPOSIT_URL)
     .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
@@ -398,65 +401,36 @@ exports.postRecharge = async (req, res, next) => {
         
        
 };
-exports.postResponseRecharge = async (req, res, next) => {
-    console.log('page');
-    console.log(req);
-    //Razorpay
-    const order_ids = await Recharging.find().catch(err => {
-        return res.redirect('/my/recharge');
-    });
-    var bool_tmp = false;
-    var recharge_id;
-    for (var i = 0; i < order_ids.length; i++) {
-        // console.log(req.body.razorpay_order_id+" "+ order_ids[i].order);
-        if (order_ids[i].order == req.body.razorpay_order_id) {
-            body = req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
-            var crypto = require("crypto");
-            var expectedSignature = crypto.createHmac('sha256', process.env.RAZ_SECRET)
-                .update(body.toString())
-                .digest('hex');
-            console.log(expectedSignature + " " + req.body.razorpay_signature);
-            if (expectedSignature == req.body.razorpay_signature) {
-                recharge_id = order_ids[i].recharge_id;
-                bool_tmp = true;
-                break;
-
-            } else {
-                return res.redirect('/my/recharge');
-            }
-        }
-
-    }
-    if (bool_tmp) {
-        Recharge.findById(recharge_id, (err, data) => {
-            console.log(data.money + "inr");
-            data.status = 1;
-            data.save();
-            User.findById(data.user, (err, user) => {
-                user.budget = parseFloat(user.budget) + parseFloat(data.money);
-                console.log(user.budget + "inr");
-                user.save((err) => {
-                    return res.redirect('/my/recharge');
-                });
-            });
-
-        });
-    } else
-        return res.redirect('/my/recharge');
-
-
-
-
-    // new Complaints(comp).save((err,user)=>{
-    //     console.log(err);
-    //     return res.status(200).json({message:"Send succesfully"});
-    // });
+exports.postResponseRecharge = async (req, res, next) => {    
+    return res.redirect('/my/recharge');
 
 };
 exports.postNotifyRecharge = (req, res, next) => {
-    console.log('notify');
-    console.log(req);
-    return res.redirect('/my/recharge');
+    try{
+        console.log(req.body);
+        console.log(req.body.order_amount);
+        const recharging=await Recharging.findById(req.body.mer_order_no);
+        var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        if(recharging && recharging.sign==req.body.sign && ip=="149.129.214.64"){
+            const recharge=new Recharge();
+            recharge.user=recharging.user;
+            recharge.phone=recharging.phone;
+            recharge.money=req.body.pay_amount;
+            recharge.status=1;
+            await recharge.save();
+            const user=await User.findById(recharge.user);
+            user.budget+=parseInt(recharge.money);
+            await user.save();
+            return res.json({});
+        }
+        return res.json({});
+    }catch(err){
+        const recharging=await Recharging.find(req.body.mer_order_no);
+    
+        console.log(sign);
+        return res.redirect('/my/recharge');
+    }
+    
 
     // new Complaints(comp).save((err,user)=>{
     //     console.log(err);
