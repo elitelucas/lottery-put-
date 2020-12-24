@@ -324,10 +324,10 @@ exports.getRechargeList = (req, res, next) => {
 
 };
 exports.postRecharge = async (req, res, next) => {
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log(ip);
+    // const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // console.log(ip);
 
-    console.log("amount=" + req.body.money);
+    // console.log("amount=" + req.body.money);
     if (req.body.money === "" || req.body.email === "") {
         return res.status(400).json({ error: "Please input correct money" });
     }
@@ -370,10 +370,10 @@ exports.postRecharge = async (req, res, next) => {
         `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
         `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
         `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&key=${process.env.PAYMENT_KEY}`).digest("hex");
-        console.log(`busi_code=${body.busi_code}&ccy_no="INR"&countryCode="IND"&goods=${body.goods}&mer_no=${body.mer_no}` +
-        `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
-        `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
-        `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`);
+        // console.log(`busi_code=${body.busi_code}&ccy_no="INR"&countryCode="IND"&goods=${body.goods}&mer_no=${body.mer_no}` +
+        // `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
+        // `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
+        // `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`);
     // console.log(`busi_code=${data.busi_code}&goods="Make deposit"&mer_no=${process.env.PAYMENT_NO}` +
     //     `&mer_order_no=${data.id}&notifyUrl=${process.env.APP_URL + "/notify-recharge"}` +
     //     `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
@@ -389,7 +389,8 @@ exports.postRecharge = async (req, res, next) => {
     .encoding('utf-8')
     .send(body)
     .then(function (response) {
-        if(response.body.status=='SUCCESS'){
+        if(response.body){
+            console.log(response.body);
             return res.status(200).json({url:response.body.order_data});
         }else{
             return res.status(400).json({});
