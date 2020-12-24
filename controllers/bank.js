@@ -407,31 +407,31 @@ exports.postResponseRecharge = async (req, res, next) => {
     return res.redirect('/my/recharge');
 
 };
-exports.postNotifyRecharge = (req, res, next) => {
-    // try{
-    //     console.log(req.body);
-    //     console.log(req.body.order_amount);
-    //     const recharging=await Recharging.findById(req.body.mer_order_no);
-    //     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    //     if(recharging && recharging.sign==req.body.sign && ip=="149.129.214.64" && req.body.status=='SUCCESS'){
-    //         const recharge=new Recharge();
-    //         recharge.user=recharging.user;
-    //         recharge.phone=recharging.phone;
-    //         recharge.money=req.body.pay_amount;
-    //         recharge.status=1;
-    //         await recharge.save();
-    //         const user=await User.findById(recharge.user);
-    //         user.budget+=parseInt(recharge.money);
-    //         await user.save();
-    //         return res.json({});
-    //     }
-    //     return res.json({});
-    // }catch(err){
-    //     const recharging=await Recharging.find(req.body.mer_order_no);
+exports.postNotifyRecharge =async (req, res, next) => {
+    try{
+        console.log(req.body);
+        console.log(req.body.order_amount);
+        const recharging=await Recharging.findById(req.body.mer_order_no);
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        if(recharging && recharging.sign==req.body.sign && ip=="149.129.214.64" && req.body.status=='SUCCESS'){
+            const recharge=new Recharge();
+            recharge.user=recharging.user;
+            recharge.phone=recharging.phone;
+            recharge.money=req.body.pay_amount;
+            recharge.status=1;
+            await recharge.save();
+            const user=await User.findById(recharge.user);
+            user.budget+=parseInt(recharge.money);
+            await user.save();
+            return res.json({});
+        }
+        return res.json({});
+    }catch(err){
+        const recharging=await Recharging.find(req.body.mer_order_no);
     
-    //     console.log(sign);
+        console.log(sign);
         return res.redirect('/my/recharge');
-    // }
+    }
     
 
     // new Complaints(comp).save((err,user)=>{
