@@ -413,7 +413,7 @@ exports.postNotifyRecharge = (req, res, next) => {
         console.log(req.body.order_amount);
         const recharging=await Recharging.findById(req.body.mer_order_no);
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        if(recharging && recharging.sign==req.body.sign && ip=="149.129.214.64"){
+        if(recharging && recharging.sign==req.body.sign && ip=="149.129.214.64" && req.body.status=='SUCCESS'){
             const recharge=new Recharge();
             recharge.user=recharging.user;
             recharge.phone=recharging.phone;
