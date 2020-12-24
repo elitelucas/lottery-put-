@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 var unirest = require("unirest");
+var request = unirest("POST", "https://www.fast2sms.com/dev/bulk");
 const jwtDecode = require('jwt-decode');
 
 
@@ -32,48 +33,56 @@ exports.user_register = (req, res, next) => {
             }
 
             const OTP = Math.floor(1000 + Math.random() * 9000);
-            const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
-              .headers({
-                'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
-              })
-              .send('sender=Luckyweb')
-              .send('mobile=+91' + req.body.phone)
-              .send('content=Your OTP is ' + OTP)
-              .end(function (res1) {
-                if (res1.error) {
-                  console.log(res1.raw_body);
-                  return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
-                } else {
-                  userFields.otp = OTP;
-                  userFields.updatedAt = (new Date()).getTime();
-                  new User(userFields)
-                    .save()
-                    .then((user) => {
-                      if (referer) {
-                        console.log(referer);
-                        var tmp = referer.refered1;
-                        tmp = tmp.concat([user._id]);
-                        referer.refered1 = tmp;
-                        referer.save();
-                        User.findById(user.refer2, (err, referer2) => {
-                          if(!err && referer2){
-                            var tmp = referer2.refered2;
-                            tmp = tmp.concat([user._id]);
-                            referer2.refered2 = tmp;
-                            referer2.save();
-                          }        
-                        });
-                      }
-
-                      return res.status(200).json({ messgae: 'ok' });
-                    })
-                    .catch((err) => {
-                      return res.status(400).json({ 'error': err });
-                    });
-                  ///////////////////////////////////////////////////////////////////////////////      
-                }
-              });
+            request.headers({
+              "content-type": "application/x-www-form-urlencoded",
+              "cache-control": "no-cache",
+              authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
+            });
             // ////////////////////////////////////////////////////////////////
+            request.form({
+              "sender_id": "FSTSMS",
+              "language": "english",
+              "route": "qt",
+              "numbers": req.body.phone,
+              "message": "41140",
+              "variables": "{#AA#}",
+              "variables_values": OTP
+            });
+
+            request.end(function (res1) {
+              if (res1.error) {
+                console.log(res1.raw_body);
+                return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
+              } else {
+                userFields.otp = OTP;
+                userFields.updatedAt = (new Date()).getTime();
+                new User(userFields)
+                  .save()
+                  .then((user) => {
+                    if (referer) {
+                      console.log(referer);
+                      var tmp = referer.refered1;
+                      tmp = tmp.concat([user._id]);
+                      referer.refered1 = tmp;
+                      referer.save();
+                      User.findById(user.refer2, (err, referer2) => {
+                        if (!err && referer2) {
+                          var tmp = referer2.refered2;
+                          tmp = tmp.concat([user._id]);
+                          referer2.refered2 = tmp;
+                          referer2.save();
+                        }
+                      });
+                    }
+
+                    return res.status(200).json({ messgae: 'ok' });
+                  })
+                  .catch((err) => {
+                    return res.status(400).json({ 'error': err });
+                  });
+                ///////////////////////////////////////////////////////////////////////////////      
+              }
+            });
 
 
           })
@@ -98,24 +107,35 @@ exports.user_phone = (req, res, next) => {
       return res.status(400).json({ "error": "Phone not found!" });
     }
     const OTP = Math.floor(1000 + Math.random() * 9000);
-    const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
-      .headers({
-        'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
-      })
-      .send('sender=Luckyweb')
-      .send('mobile=+91' + req.body.phone)
-      .send('content=Your OTP is ' + OTP)
-      .end(function (res1) {
-        if (res1.error) return res.status(400).json({ error: "error on otp" });
-        else {
-          user.otp = OTP;
-          user.updatedAt = (new Date()).getTime();
-          user.save((err) => {
-            return res.status(200).json({ messgae: 'ok' });
-          });
+    request.headers({
+      "content-type": "application/x-www-form-urlencoded",
+      "cache-control": "no-cache",
+      authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
+    });
+    // ////////////////////////////////////////////////////////////////
+    request.form({
+      "sender_id": "FSTSMS",
+      "language": "english",
+      "route": "qt",
+      "numbers": req.body.phone,
+      "message": "41140",
+      "variables": "{#AA#}",
+      "variables_values": OTP
+    });
 
-        }
-      });
+    request.end(function (res1) {
+      if (res1.error) {
+        console.log(res1.raw_body);
+        return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
+      } else {
+        user.otp = OTP;
+        user.updatedAt = (new Date()).getTime();
+        user.save((err) => {
+          return res.status(200).json({ messgae: 'ok' });
+        });
+      }
+    });
+
 
 
   });
@@ -130,26 +150,37 @@ exports.user_phone_change = (req, res, next) => {
         // If no document is found, user is null
         if (!user1) {
           const OTP = Math.floor(1000 + Math.random() * 9000);
-          const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
-            .headers({
-              'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
-            })
-            .send('sender=Luckyweb')
-            .send('mobile=+91' + req.body.phone)
-            .send('content=Your OTP is ' + OTP)
-            .end(function (res1) {
-              if (res1.error) return res.status(400).json({ error: "error on otp" });
-              else {
-                user.phone = req.body.phone;
-                user.otp = OTP;
-                user.phone_verified = false;
-                user.updatedAt = (new Date()).getTime();
-                user.save((err) => {
-                  return res.status(200).json({ messgae: 'ok' });
-                });
+          request.headers({
+            "content-type": "application/x-www-form-urlencoded",
+            "cache-control": "no-cache",
+            authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
+          });
+          // ////////////////////////////////////////////////////////////////
+          request.form({
+            "sender_id": "FSTSMS",
+            "language": "english",
+            "route": "qt",
+            "numbers": req.body.phone,
+            "message": "41140",
+            "variables": "{#AA#}",
+            "variables_values": OTP
+          });
 
-              }
-            });
+          request.end(function (res1) {
+            if (res1.error) {
+              console.log(res1.raw_body);
+              return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
+            } else {
+              user.phone = req.body.phone;
+              user.otp = OTP;
+              user.phone_verified = false;
+              user.updatedAt = (new Date()).getTime();
+              user.save((err) => {
+                return res.status(200).json({ messgae: 'ok' });
+              });
+            }
+          });
+
 
         } else {
           // console.log("number already exists");
@@ -161,25 +192,37 @@ exports.user_phone_change = (req, res, next) => {
       });
     } else {
       const OTP = Math.floor(1000 + Math.random() * 9000);
-      const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
-        .headers({
-          'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
-        })
-        .send('sender=Luckyweb')
-        .send('mobile=+91' + req.body.phone)
-        .send('content=Your OTP is ' + OTP)
-        .end(function (res1) {
-          if (res1.error) return res.status(400).json({ error: "error on otp" });
-          else {
-            user.otp = OTP;
-            user.phone_verified = false;
-            user.updatedAt = (new Date()).getTime();
-            user.save((err) => {
-              return res.status(200).json({ messgae: 'ok' });
-            });
+      request.headers({
+        "content-type": "application/x-www-form-urlencoded",
+        "cache-control": "no-cache",
+        authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
+      });
+      // ////////////////////////////////////////////////////////////////
+      request.form({
+        "sender_id": "FSTSMS",
+        "language": "english",
+        "route": "qt",
+        "numbers": req.body.phone,
+        "message": "41140",
+        "variables": "{#AA#}",
+        "variables_values": OTP
+      });
 
-          }
-        });
+      request.end(function (res1) {
+        if (res1.error) {
+          console.log(res1.raw_body);
+          return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
+        } else {
+          user.otp = OTP;
+          user.phone_verified = false;
+          user.updatedAt = (new Date()).getTime();
+          user.save((err) => {
+            return res.status(200).json({ messgae: 'ok' });
+          });
+
+        }
+      });
+
 
 
     }
@@ -234,29 +277,39 @@ exports.user_login = (req, res, next) => {
       // console.log(user.phone_verified);
       if (user.phone_verified == false) {
         const OTP = Math.floor(1000 + Math.random() * 9000);
-        const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
-          .headers({
-            'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
-          })
-          .send('sender=Luckyweb')
-          .send('mobile=+91' + req.body.phone)
-          .send('content=Your OTP is ' + OTP)
-          .end(function (res1) {
-            if (res1.error) return res.status(400).json({ error: "error on otp" });
-            else {
-              user.otp = OTP;
-              user.updatedAt = (new Date()).getTime();
-              user.save((err) => {
-                if (!err) {
-                  return res.status(400).json({ phone: user.phone, error: '1' });
-                } else {
-                  return res.status(400).json({ 'error': err });
-                }
-              });
+        request.headers({
+          "content-type": "application/x-www-form-urlencoded",
+          "cache-control": "no-cache",
+          authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
+        });
+        // ////////////////////////////////////////////////////////////////
+        request.form({
+          "sender_id": "FSTSMS",
+          "language": "english",
+          "route": "qt",
+          "numbers": req.body.phone,
+          "message": "41140",
+          "variables": "{#AA#}",
+          "variables_values": OTP
+        });
 
+        request.end(function (res1) {
+          if (res1.error) {
+            console.log(res1.raw_body);
+            return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
+          } else {
+            user.otp = OTP;
+            user.updatedAt = (new Date()).getTime();
+            user.save((err) => {
+              if (!err) {
+                return res.status(400).json({ phone: user.phone, error: '1' });
+              } else {
+                return res.status(400).json({ 'error': err });
+              }
+            });
+          }
+        });
 
-            }
-          });
 
 
       } else {
@@ -374,62 +427,107 @@ exports.getUsers = async (req, res, next) => {
 };
 
 exports.getUser = async (req, res, next) => {
-  try{
-    const tmp=await User.findById(req.params.id);
-    let user=tmp.toJSON();
-    if(user.refer1)
-      user.refer1=(await User.findById(user.refer1)).phone;
-    if(user.refer2)
-      user.refer2=(await User.findById(user.refer2)).phone;
-    user.refered1=[];
-    user.refered2=[];
-    for(let i=0;i<user.refered1.length;i++){
-      const tmp=await User.findById(user.refered1[i]);
-      if(tmp){
+  try {
+    const tmp = await User.findById(req.params.id);
+    let user = tmp.toJSON();
+    if (user.refer1)
+      user.refer1 = (await User.findById(user.refer1)).phone;
+    if (user.refer2)
+      user.refer2 = (await User.findById(user.refer2)).phone;
+    user.refered1 = [];
+    user.refered2 = [];
+    for (let i = 0; i < user.refered1.length; i++) {
+      const tmp = await User.findById(user.refered1[i]);
+      if (tmp) {
         user.refered1.push(tmp.phone);
       }
     }
-    for(let i=0;i<user.refered2.length;i++){
-      const tmp=await User.findById(user.refered2[i]);
-      if(tmp){
+    for (let i = 0; i < user.refered2.length; i++) {
+      const tmp = await User.findById(user.refered2[i]);
+      if (tmp) {
         user.refered2.push(tmp.phone);
       }
     }
-    const recharges=await Recharge.find({user:req.params.id,status:1});
-    const withdrawals=await Withdrawl.find({user:req.params.id,status:1});
-    const rewards=await Reward.find({userphone:user.phone});
-    const enjoys=await MyEnjoy.find({user:req.params.id});
-    return res.status(200).json({user,recharges,withdrawals,rewards,enjoys});
-  }catch(err){
+    const recharges = await Recharge.find({ user: req.params.id, status: 1 });
+    const withdrawals = await Withdrawl.find({ user: req.params.id, status: 1 });
+    const rewards = await Reward.find({ userphone: user.phone });
+    const enjoys = await MyEnjoy.find({ user: req.params.id });
+    return res.status(200).json({ user, recharges, withdrawals, rewards, enjoys });
+  } catch (err) {
     console.log(err);
   }
 
 };
 exports.putPointUp = async (req, res, next) => {
-  const user=await User.findById(req.params.id);
-  if(user.admin){
-    user.superAdmin=true;
-  }else{
-    user.admin=true;
-    user.superAdmin=false;
+  const user = await User.findById(req.params.id);
+  if (user.admin) {
+    user.superAdmin = true;
+  } else {
+    user.admin = true;
+    user.superAdmin = false;
   }
   await user.save();
   return res.status(200).json(user);
 };
 exports.putPointDown = async (req, res, next) => {
-  const user=await User.findById(req.params.id);
-  if(user.superAdmin){
-    user.superAdmin=false;
-    user.admin=true;
-  }else{
-    user.admin=false;
-    user.superAdmin=false;
+  const user = await User.findById(req.params.id);
+  if (user.superAdmin) {
+    user.superAdmin = false;
+    user.admin = true;
+  } else {
+    user.admin = false;
+    user.superAdmin = false;
   }
   await user.save();
   return res.status(200).json(user);
 };
 exports.removeUser = async (req, res, next) => {
-  const user=await User.findById(req.params.id);
+  const user = await User.findById(req.params.id);
   await user.remove();
-  return res.status(200).json({message:'ok'});
+  return res.status(200).json({ message: 'ok' });
+};
+exports.addUser = async (req, res, next) => {
+  const count = await User.countDocuments({ phone: req.body.phone });
+  if (count > 0)
+    return res.status(400).json({ message: "Phone already exists" });
+  let tmp = {};
+  tmp.phone = req.body.phone;
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(req.body.password, salt);
+  tmp.password = hash;
+  if (req.body.role == "Super Admin") {
+    tmp.admin = true;
+    tmp.superAdmin = true;
+  } else if (req.body.role == "Admin") {
+    tmp.admin = true;
+    tmp.superAdmin = false;
+  }
+  const user = await (new User(tmp)).save();
+  try {
+    const referrer1 = await User.findById(req.body.referral);
+    if (referrer1) {
+      user.refer1 = req.body.referral;
+      if (referrer1.refer1)
+        user.refer2 = referrer1.refer1;
+      await user.save();
+    }
+    const user = await (new User(tmp)).save();
+    if (referrer1) {
+      tmp = referrer1.refered1;
+      tmp = tmp.concat([user._id]);
+      referrer1.refered1 = tmp;
+      referrer1.save();
+      if (user.refer2) {
+        const referrer2 = await User.findById(user.refer2);
+        tmp = referrer2.refered2;
+        tmp = tmp.concat([user._id]);
+        referrer2.refered2 = tmp;
+        referrer2.save();
+      }
+    }
+  } catch (err) {
+
+  }
+
+  return res.status(200).json(user);
 };
