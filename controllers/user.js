@@ -502,6 +502,7 @@ exports.addUser = async (req, res, next) => {
     tmp.admin = true;
     tmp.superAdmin = false;
   }
+  tmp.phone_verified=true;
   const user = await (new User(tmp)).save();
   try {
     const referrer1 = await User.findById(req.body.referral);
