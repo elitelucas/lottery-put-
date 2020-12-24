@@ -307,7 +307,7 @@ exports.getWithdrawlList = (req, res, next) => {
 
 
     (async () => {
-        var withdrawls = await Withdrawl.find({ user: req.userFromToken });
+        var withdrawls = await Withdrawl.find({ user: req.userFromToken._id });
 
         return res.status(200).json({ data: withdrawls });
     })();
@@ -324,7 +324,7 @@ exports.getRechargeList = (req, res, next) => {
 
 
     (async () => {
-        var recharges = await Recharge.find({ user: req.userFromToken });
+        var recharges = await Recharge.find({ user: req.userFromToken._id });
 
         return res.status(200).json({ data: recharges });
     })();
@@ -468,7 +468,7 @@ exports.getBudget = (req, res, next) => {
 
 
     (async () => {
-        var user = await User.findById(req.userFromToken);
+        var user = await User.findById(req.userFromToken._id);
 
         return res.status(200).json({ budget: user.budget });
     })();
