@@ -210,8 +210,11 @@ var completing = () => {
 	bet[0].forEach((ele, index) => {
 		User.findById(ele[0], (err, doc) => {
 			// console.log(parseFloat(doc.budget)+" "+parseFloat(bet[2][index][1])+" "+ parseFloat(ele[1]));
-			doc.budget = parseFloat(doc.budget ? doc.budget : 0) - parseFloat(bet[2][index][1] ? bet[2][index][1] : 0) + parseFloat(ele[1] ? ele[1] : 0);
-			doc.save();
+			if(doc){
+				doc.budget = parseFloat(doc.budget ? doc.budget : 0) - parseFloat(bet[2][index][1] ? bet[2][index][1] : 0) + parseFloat(ele[1] ? ele[1] : 0);
+				doc.save();
+			}
+			
 		});
 	});
 
