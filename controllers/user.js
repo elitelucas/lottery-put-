@@ -32,7 +32,7 @@ exports.user_register = (req, res, next) => {
             }
 
             const OTP = Math.floor(1000 + Math.random() * 9000);
-            const req = unirest('POST', 'https://platform.releans.com/api/v2/message')
+            const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
               .headers({
                 'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
               })
@@ -98,7 +98,7 @@ exports.user_phone = (req, res, next) => {
       return res.status(400).json({ "error": "Phone not found!" });
     }
     const OTP = Math.floor(1000 + Math.random() * 9000);
-    const req = unirest('POST', 'https://platform.releans.com/api/v2/message')
+    const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
       .headers({
         'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
       })
@@ -130,7 +130,7 @@ exports.user_phone_change = (req, res, next) => {
         // If no document is found, user is null
         if (!user1) {
           const OTP = Math.floor(1000 + Math.random() * 9000);
-          const req = unirest('POST', 'https://platform.releans.com/api/v2/message')
+          const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
             .headers({
               'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
             })
@@ -161,7 +161,7 @@ exports.user_phone_change = (req, res, next) => {
       });
     } else {
       const OTP = Math.floor(1000 + Math.random() * 9000);
-      const req = unirest('POST', 'https://platform.releans.com/api/v2/message')
+      const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
         .headers({
           'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
         })
@@ -234,7 +234,7 @@ exports.user_login = (req, res, next) => {
       // console.log(user.phone_verified);
       if (user.phone_verified == false) {
         const OTP = Math.floor(1000 + Math.random() * 9000);
-        const req = unirest('POST', 'https://platform.releans.com/api/v2/message')
+        const uni_req = unirest('POST', 'https://platform.releans.com/api/v2/message')
           .headers({
             'Authorization': 'Bearer be17e6fad6ffd77b2289fc49b5e905f5'
           })
