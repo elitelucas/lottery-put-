@@ -324,6 +324,8 @@ exports.getRechargeList = (req, res, next) => {
 
 };
 exports.postRecharge = async (req, res, next) => {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    console.log(ip);
 
     console.log("amount=" + req.body.money);
     if (req.body.money === "" || req.body.email === "") {
@@ -410,7 +412,7 @@ exports.postNotifyRecharge = (req, res, next) => {
         console.log(req.body);
         console.log(req.body.order_amount);
         const recharging=await Recharging.findById(req.body.mer_order_no);
-        var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         if(recharging && recharging.sign==req.body.sign && ip=="149.129.214.64"){
             const recharge=new Recharge();
             recharge.user=recharging.user;
