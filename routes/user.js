@@ -72,6 +72,7 @@ router.post("/recharge-admin", checkAuth, checkAdmin, bank_controller.postAdminR
 router.post("/recharge", checkAuth, bank_controller.postRecharge);
 router.get("/rechargeList", checkAuth, bank_controller.getRechargeList);
 router.post("/response-recharge", bank_controller.postResponseRecharge);
+router.get("/response-recharge", bank_controller.getResponseRecharge);
 router.post("/notify-recharge", bank_controller.postNotifyRecharge);
 router.get("/budget", checkAuth, bank_controller.getBudget);
 

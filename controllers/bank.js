@@ -418,14 +418,26 @@ exports.postRecharge = async (req, res, next) => {
 
 };
 exports.postResponseRecharge = async (req, res, next) => {
-    const data = `busi_code=UPI&err_code=!00000&err_msg=!00000` +
-        `&mer_no=gm761100000067975&mer_order_no=5fe341db97811392a80ec1a8` +
-        `&order_amount=1000&order_no=2012230000000526387201051906&order_time=2020-12-23 20:10:51` +
-        `&pay_amount=1000&pay_time=2020-12-23 20:13:16&status=SUCCESS&key=${process.env.PAYMENT_KEY}`
-    const sign = crypto.createHash('md5')
-        .update(data).digest("hex");
-    console.log(data);
-    console.log(sign)
+    // const data = `busi_code=UPI&err_code=!00000&err_msg=!00000` +
+    //     `&mer_no=gm761100000067975&mer_order_no=5fe341db97811392a80ec1a8` +
+    //     `&order_amount=1000&order_no=2012230000000526387201051906&order_time=2020-12-23 20:10:51` +
+    //     `&pay_amount=1000&pay_time=2020-12-23 20:13:16&status=SUCCESS&key=${process.env.PAYMENT_KEY}`
+    // const sign = crypto.createHash('md5')
+    //     .update(data).digest("hex");
+    // console.log(data);
+    // console.log(sign)
+    return res.redirect('/my/recharge');
+
+};
+exports.getResponseRecharge = async (req, res, next) => {
+    // const data = `busi_code=UPI&err_code=!00000&err_msg=!00000` +
+    //     `&mer_no=gm761100000067975&mer_order_no=5fe341db97811392a80ec1a8` +
+    //     `&order_amount=1000&order_no=2012230000000526387201051906&order_time=2020-12-23 20:10:51` +
+    //     `&pay_amount=1000&pay_time=2020-12-23 20:13:16&status=SUCCESS&key=${process.env.PAYMENT_KEY}`
+    // const sign = crypto.createHash('md5')
+    //     .update(data).digest("hex");
+    // console.log(data);
+    // console.log(sign)
     return res.redirect('/my/recharge');
 
 };
