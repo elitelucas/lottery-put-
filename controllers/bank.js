@@ -187,7 +187,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                         const saved_w = await withdrawls.save();
                         return res.status(400).json({ message: 'failed' });
                     }
-                }).catch(() => {
+                }).catch((err) => {
                     withdrawls.status = -2;
                     user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
 
