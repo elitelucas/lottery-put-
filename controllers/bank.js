@@ -45,15 +45,15 @@ exports.postWithdrawl = async (req, res, next) => {
     if (amount < 100)
         return res.status(400).json({ error: "Only more than 100 inr allowed" });
     var time = parseInt((new Date()).getTime());
-    const old = await Withdrawl.find({ user: req.userFromToken._id }).sort('-createdAt');
-    if (old.length !== 0) {
-        console.log(time);
-        console.log(parseInt((new Date(old[0].createdAt)).getTime()));
+    // const old = await Withdrawl.find({ user: req.userFromToken._id }).sort('-createdAt');
+    // if (old.length !== 0) {
+    //     console.log(time);
+    //     console.log(parseInt((new Date(old[0].createdAt)).getTime()));
 
-        if (time - parseInt((new Date(old[0].createdAt)).getTime()) < 3600000) {
-            return res.status(400).json({ error: "Withdraw is only allowed 1 time per hour!" });
-        }
-    }
+    //     if (time - parseInt((new Date(old[0].createdAt)).getTime()) < 3600000) {
+    //         return res.status(400).json({ error: "Withdraw is only allowed 1 time per hour!" });
+    //     }
+    // }
 
 
     User.findById(req.userFromToken._id, (err, user) => {
@@ -64,12 +64,16 @@ exports.postWithdrawl = async (req, res, next) => {
                     return res.status(401).json({ error: "You don't have enough money!" });
                 const comp = {};
                 comp.user = user._id;
-                comp.bank = req.body.bank;
-                comp.money = amount;
+                comp.bank_code = req.body.bankCode;
+                comp.order_amount = req.body.amount;
+                comp.acc_no = req.body.accNo;
+                comp.acc_name = req.body.accName;
+                comp.summary = "Withdrawal from the Lottery";
+
                 user.budget = parseFloat(user.budget) - amount;
                 user.save();
                 new Withdrawl(comp).save();
-                return res.status(200).json({ message: 'success! It will be take a few hours to transfer.' });
+                return res.status(200).json({ message: 'success! It will be take a few minutes to transfer.' });
             } else return res.status(401).json({ error: "Password incorrect!" });
         });
 
@@ -85,7 +89,7 @@ exports.getAdminWithdrawl = (req, res, next) => {
 
 
     (async () => {
-        var withdrawls = await Withdrawl.find({ '$or': [{ status: '0' }, { status: '1' }] }).sort("-createdAt");
+        var withdrawls = await Withdrawl.find({ status: '0' }).sort("-createdAt");
         const res_data = [];
         for (var i = 0; i < withdrawls.length; i++) {
             try {
@@ -96,17 +100,11 @@ exports.getAdminWithdrawl = (req, res, next) => {
                 res_data[i].userId = aa._id;
                 res_data[i].userNickname = aa.nickname;
                 res_data[i].userPhone = aa.phone;
-                res_data[i].amount = withdrawls[i].money;
-                res_data[i].actual_name = aa.bank_card[withdrawls[i].bank].actual_name;
-                res_data[i].ifsc_code = aa.bank_card[withdrawls[i].bank].ifsc_code;
-                res_data[i].bank_name = aa.bank_card[withdrawls[i].bank].bank_name;
-                res_data[i].bank_account = aa.bank_card[withdrawls[i].bank].bank_account;
-                res_data[i].state_territory = aa.bank_card[withdrawls[i].bank].state_territory;
-                res_data[i].city = aa.bank_card[withdrawls[i].bank].city;
-                res_data[i].address = aa.bank_card[withdrawls[i].bank].address;
-                res_data[i].mobile_number = aa.bank_card[withdrawls[i].bank].mobile_number;
-                res_data[i].email = aa.bank_card[withdrawls[i].bank].email;
-                res_data[i].upi_account = aa.bank_card[withdrawls[i].bank].upi_account;
+                res_data[i].order_amount = withdrawls[i].order_amount;
+                res_data[i].bank_code = withdrawls[i].bank_code;
+                res_data[i].acc_no = withdrawls[i].acc_no;
+                res_data[i].acc_name = withdrawls[i].acc_name;
+                res_data[i].email = aa.email;
             } catch (ex) {
                 continue;
             }
@@ -124,63 +122,76 @@ exports.getAdminWithdrawl = (req, res, next) => {
 
 };
 
-exports.postAdminWithdrawl = (req, res, next) => {
+exports.postAdminWithdrawl = async (req, res, next) => {
+    var withdrawls = await Withdrawl.findById(req.body.id);
+    var user = await User.findById(withdrawls.user);
 
-
-    (async () => {
-        var withdrawls = await Withdrawl.findById(req.body.id);
-        var user = await User.findById(withdrawls.user);
-        // console.log("budget="+user.budget);
-        // console.log("withdraw="+withdrawls.money);
-        // console.log(req.body.status);
-        // console.log(req.body.status);
-        switch (req.body.status) {
-            case 2: {
-                //decline
-                //  console.log('decline');
-                user.budget = parseFloat(user.budget) + parseFloat(withdrawls.money);
-                withdrawls.status = 2;
-                const saved_w = await withdrawls.save();
-                // console.log("withdraw status="+saved_w.status);
-                break;
-            }
-            case 1: {
-                //approve
-                //  console.log('approve');
-                withdrawls.status = 1;
-                const saved_w = await withdrawls.save();
-                // console.log("withdraw status="+saved_w.status);
-                break;
-            }
-            case 3: {
-                //complete
-                // console.log('complete');
-                withdrawls.status = 3;
-                const saved_w = await withdrawls.save();
-                // console.log("withdraw status="+saved_w.status);
-                break;
-            }
-            case 4: {
-                //error
-                // console.log('error');
-                user.budget = parseFloat(user.budget) + parseFloat(withdrawls.money);
-                withdrawls.status = 4;
-                const saved_w = await withdrawls.save();
-                // console.log("withdraw status="+saved_w.status);
-
-                break;
-            }
-        }
-        // console.log('user.budget= '+user.budget);
-        try {
+    switch (req.body.status) {
+        case -1: {
+            //decline
+            user.budget = parseFloat(user.budget) + parseFloat(withdrawls.money);
+            withdrawls.status = -1;
+            const saved_w = await withdrawls.save();
             const saved = await user.save();
-            // console.log('saved user.budget='+saved.budget);
-        } catch (ex) {
-            console.log(ex);
+            return res.status(200).json({ message: 'ok' });
+        }
+        case 1: {
+            //approve
+            let body = {
+                acc_name: withdrawls.acc_name,
+                acc_no: withdrawls.acc_no,
+                bank_code: withdrawls.bank_code,
+                ccy_no: "INR",
+                mer_no: process.env.PAYMENT_NO,
+                mer_order_no: req.body.id,
+                order_amount: withdrawls.order_amount,
+                summary: withdrawls.summary
+            };
+            console.log(process.env.PAYMENT_WITHDRAWAL_URL);
+            const sign = crypto.createHash('md5')
+                .update(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
+                    `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
+                    `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`).digest("hex");
+            console.log(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
+            `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
+            `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
+            withdrawls.sign = sign;
+            body = { ...body, sign };
+            await unirest
+                .post(process.env.PAYMENT_WITHDRAWAL_URL)
+                .headers({ 'Accept': 'application/json', 'Content-Type': 'application/json' })
+                .encoding('utf-8')
+                .send(body)
+                .then(async (response) => {
+                    console.log(response)
+                    if (response.body) {
+                        console.log(response.body)
+                        if (response.body.status.toLowerCase() == "success") {
+                            withdrawls.status = 1;
+                            const saved_w = await withdrawls.save();
+                            return res.status(200).json({ message: 'ok' });
+                        } else {
+                            user.budget = parseFloat(user.budget) + parseFloat(withdrawls.money);
+                            withdrawls.status = -2;
+                            await user.save();
+                            const saved_w = await withdrawls.save();
+                            return res.status(400).json({ message: 'failed' });
+                        }
+
+                    } else {
+                        withdrawls.status = -2;
+                        user.budget = parseFloat(user.budget) + parseFloat(withdrawls.money);
+                        await user.save();
+                        const saved_w = await withdrawls.save();
+                        return res.status(400).json({ message: 'failed' });
+                    }
+                });
+            // console.log("withdraw status="+saved_w.status);
+
         }
 
-        return res.status(200).json({ message: 'ok' });
-    })();
+    }
+
 
 
     // new Complaints(comp).save((err,user)=>{
@@ -347,103 +358,103 @@ exports.postRecharge = async (req, res, next) => {
     //         `&mer_order_no=${data.id}&notifyUrl=${process.env.APP_URL + "/notify-recharge"}` +
     //         `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
     //         `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`).digest("hex");
-    let body={
-        busi_code:data.busi_code,
-        ccy_no:"INR",
-        countryCode:"IND",
-        
-        goods:"Make deposit",
-        mer_no:process.env.PAYMENT_NO,
-        mer_order_no:data.id,
-        notifyUrl:process.env.APP_URL + "api/notify-recharge",
-        order_amount:data.order_amount,
-        pageUrl:process.env.APP_URL + "api/response-recharge",
-        pemail:data.pemail,
-        phone:data.phone,
-        pname:data.pname,
-        timeout_express:'30m'
-        
+    let body = {
+        busi_code: data.busi_code,
+        ccy_no: "INR",
+        countryCode: "IND",
+
+        goods: "Make deposit",
+        mer_no: process.env.PAYMENT_NO,
+        mer_order_no: data.id,
+        notifyUrl: process.env.APP_URL + "api/notify-recharge",
+        order_amount: data.order_amount,
+        pageUrl: process.env.APP_URL + "api/response-recharge",
+        pemail: data.pemail,
+        phone: data.phone,
+        pname: data.pname,
+        timeout_express: '30m'
+
     }
 
     const sign = crypto.createHash('md5')
-    .update(`busi_code=${body.busi_code}&ccy_no=INR&countryCode=IND&goods=${body.goods}&mer_no=${body.mer_no}` +
-        `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
-        `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
-        `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`).digest("hex");
-        // console.log(`busi_code=${body.busi_code}&ccy_no="INR"&countryCode="IND"&goods=${body.goods}&mer_no=${body.mer_no}` +
-        // `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
-        // `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
-        // `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`);
+        .update(`busi_code=${body.busi_code}&ccy_no=INR&countryCode=IND&goods=${body.goods}&mer_no=${body.mer_no}` +
+            `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
+            `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
+            `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`).digest("hex");
+    // console.log(`busi_code=${body.busi_code}&ccy_no="INR"&countryCode="IND"&goods=${body.goods}&mer_no=${body.mer_no}` +
+    // `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
+    // `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
+    // `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`);
     // console.log(`busi_code=${data.busi_code}&goods="Make deposit"&mer_no=${process.env.PAYMENT_NO}` +
     //     `&mer_order_no=${data.id}&notifyUrl=${process.env.APP_URL + "/notify-recharge"}` +
     //     `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
     //     `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`);
     // console.log(sign);
-    data.sign=sign;
+    data.sign = sign;
     await data.save();
-    body={...body, sign};
+    body = { ...body, sign };
     // console.log(body);
     await unirest
-    .post(process.env.PAYMENT_DEPOSIT_URL)
-    .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
-    .encoding('utf-8')
-    .send(body)
-    .then(function (response) {
-        if(response.body){
-            console.log(response.body);
-            return res.status(200).json({url:response.body.order_data});
-        }else{
-            return res.status(400).json({});
-        }
-    });
+        .post(process.env.PAYMENT_DEPOSIT_URL)
+        .headers({ 'Accept': 'application/json', 'Content-Type': 'application/json' })
+        .encoding('utf-8')
+        .send(body)
+        .then(function (response) {
+            if (response.body) {
+                console.log(response.body);
+                return res.status(200).json({ url: response.body.order_data });
+            } else {
+                return res.status(400).json({});
+            }
+        });
 
-   
-        
-        
-        
-        
-       
+
+
+
+
+
+
 };
-exports.postResponseRecharge = async (req, res, next) => {    
-    const data=`busi_code=UPI&err_code=!00000&err_msg=!00000`+
-    `&mer_no=gm761100000067975&mer_order_no=5fe341db97811392a80ec1a8`+
-    `&order_amount=1000&order_no=2012230000000526387201051906&order_time=2020-12-2320:10:51`+
-    `&pay_amount=1000&pay_time=2020-12-2320:13:16&status=SUCCESS&key=${process.env.PAYMENT_KEY}`
+exports.postResponseRecharge = async (req, res, next) => {
+    const data = `busi_code=UPI&err_code=!00000&err_msg=!00000` +
+        `&mer_no=gm761100000067975&mer_order_no=5fe341db97811392a80ec1a8` +
+        `&order_amount=1000&order_no=2012230000000526387201051906&order_time=2020-12-23 20:10:51` +
+        `&pay_amount=1000&pay_time=2020-12-23 20:13:16&status=SUCCESS&key=${process.env.PAYMENT_KEY}`
     const sign = crypto.createHash('md5')
-    .update(data).digest("hex");
+        .update(data).digest("hex");
     console.log(data);
     console.log(sign)
     return res.redirect('/my/recharge');
 
 };
-exports.postNotifyRecharge =async (req, res, next) => {
-    try{
+exports.postNotifyRecharge = async (req, res, next) => {
+    try {
         console.log(req.body);
         console.log(req.body.order_amount);
-        const recharging=await Recharging.findById(req.body.mer_order_no);
+        const recharging = await Recharging.findById(req.body.mer_order_no);
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log(ip);
-        if(recharging && recharging.sign==req.body.sign && ip=="149.129.214.64" && req.body.status=='SUCCESS'){
-            const recharge=new Recharge();
-            recharge.user=recharging.user;
-            recharge.phone=recharging.phone;
-            recharge.money=req.body.pay_amount;
-            recharge.status=1;
+        if (recharging && recharging.sign == req.body.sign && ip == process.env.PAYMENT_IP && req.body.status == 'SUCCESS') {
+            const recharge = new Recharge();
+            recharge.user = recharging.user;
+            recharge.phone = recharging.phone;
+            recharge.money = req.body.pay_amount;
+            recharge.status = 1;
             await recharge.save();
-            const user=await User.findById(recharge.user);
-            user.budget+=parseInt(recharge.money);
+            const user = await User.findById(recharge.user);
+            user.budget += parseInt(recharge.money);
             await user.save();
             await recharging.remove();
             return res.json({});
         }
         return res.json({});
-    }catch(err){
-        const recharging=await Recharging.find(req.body.mer_order_no);
-    
+    } catch (err) {
+        const recharging = await Recharging.find(req.body.mer_order_no);
+
         console.log(sign);
         return res.redirect('/my/recharge');
     }
-    
+
 
     // new Complaints(comp).save((err,user)=>{
     //     console.log(err);

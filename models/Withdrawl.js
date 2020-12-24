@@ -8,12 +8,32 @@ const WithdrawlSchema = new Schema({
     required:true,
     index:true
   },
-  money:{
+  order_amount:{
     type:Number,
     index:true
   },
 
-  bank:{
+  bank_code:{
+    type:String,
+    index:true
+  },
+  province:{
+    type:String,
+    index:true
+  },
+  acc_no:{
+    type:String,
+    index:true
+  },
+  acc_name:{
+    type:String,
+    index:true
+  },
+  summary:{
+    type:String,
+    index:true
+  },
+  sign:{
     type:String,
     index:true
   },

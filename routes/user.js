@@ -4,6 +4,7 @@ const user_controller = require("../controllers/user");
 const enjoy_controller = require("../controllers/enjoy");
 const checkAuth = require("../middleware/authChecker");
 const checkAdmin=require("../middleware/adminChecker");
+const checkSuperAdmin=require("../middleware/superAdminChecker");
 const complaints_controller=require('../controllers/complaints');
 const bonus_controller=require('../controllers/bonus');
 const bank_controller=require('../controllers/bank');
@@ -79,5 +80,11 @@ router.post("/reward", checkAuth,checkAdmin,reward_controller.createReward);
 router.get("/rewards/:page", checkAuth,checkAdmin,reward_controller.listReward);
 router.delete("/reward/:id", checkAuth,checkAdmin,reward_controller.deleteReward);
 router.get("/reward/:id",reward_controller.putReward);
-// router.get("/maintain",reward_controller.maintain);
+
+//admin users
+router.get("/users/:page/:search?", checkAuth, checkAdmin, user_controller.getUsers);
+router.get("/user/:id", checkAuth, checkAdmin, user_controller.getUser);
+router.put("/pointUp/:id", checkAuth, checkAdmin,checkSuperAdmin, user_controller.putPointUp);
+router.put("/pointDown/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.putPointDown);
+router.delete("/remove-user/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.removeUser);
 module.exports = router;

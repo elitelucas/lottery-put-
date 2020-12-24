@@ -12,6 +12,10 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false
   },
+  superAdmin: {
+    type: Boolean,
+    default: false
+  },
   nickname: {
     type: String,
     default: "member",
@@ -114,5 +118,11 @@ const UserSchema = new Schema({
     default: Date.now,
   },
 });
-
+UserSchema.set('toJSON', { getters: true });
+UserSchema.options.toJSON.transform = (doc, ret) => {
+  const obj = { ...ret };
+  delete obj.__v;
+  delete obj.password;
+  return obj;
+};
 module.exports = User = mongoose.model("user", UserSchema);

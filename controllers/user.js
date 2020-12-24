@@ -56,10 +56,12 @@ exports.user_register = (req, res, next) => {
                         referer.refered1 = tmp;
                         referer.save();
                         User.findById(user.refer2, (err, referer2) => {
-                          var tmp = referer2.refered2;
-                          tmp = tmp.concat([user._id]);
-                          referer2.refered2 = tmp;
-                          referer2.save();
+                          if(!err && referer2){
+                            var tmp = referer2.refered2;
+                            tmp = tmp.concat([user._id]);
+                            referer2.refered2 = tmp;
+                            referer2.save();
+                          }        
                         });
                       }
 
@@ -346,4 +348,88 @@ exports.postNickname = (req, res, next) => {
 
 
   });
+};
+
+exports.getUsers = async (req, res, next) => {
+  const search = req.params.search;
+  const page = req.params.page;
+  if (search) {
+    const users = await User.find({ phone: search }).sort({ _id: -1 }).skip((page - 1) * 5).limit(5);
+    const total = await User.countDocuments({ phone: search });
+    return res.status(200).json({
+      users: users,
+      page: page,
+      last_page: Math.ceil(total / 5)
+    });
+  } else {
+    const users = await User.find({}).sort({ _id: -1 }).skip((page - 1) * 5).limit(5);
+    const total = await User.countDocuments({});
+
+    return res.status(200).json({
+      users: users,
+      page: page,
+      last_page: Math.ceil(total / 5)
+    });
+  }
+};
+
+exports.getUser = async (req, res, next) => {
+  try{
+    const tmp=await User.findById(req.params.id);
+    let user=tmp.toJSON();
+    if(user.refer1)
+      user.refer1=(await User.findById(user.refer1)).phone;
+    if(user.refer2)
+      user.refer2=(await User.findById(user.refer2)).phone;
+    user.refered1=[];
+    user.refered2=[];
+    for(let i=0;i<user.refered1.length;i++){
+      const tmp=await User.findById(user.refered1[i]);
+      if(tmp){
+        user.refered1.push(tmp.phone);
+      }
+    }
+    for(let i=0;i<user.refered2.length;i++){
+      const tmp=await User.findById(user.refered2[i]);
+      if(tmp){
+        user.refered2.push(tmp.phone);
+      }
+    }
+    const recharges=await Recharge.find({user:req.params.id,status:1});
+    const withdrawals=await Withdrawl.find({user:req.params.id,status:1});
+    const rewards=await Reward.find({userphone:user.phone});
+    const enjoys=await MyEnjoy.find({user:req.params.id});
+    return res.status(200).json({user,recharges,withdrawals,rewards,enjoys});
+  }catch(err){
+    console.log(err);
+  }
+
+};
+exports.putPointUp = async (req, res, next) => {
+  const user=await User.findById(req.params.id);
+  if(user.admin){
+    user.superAdmin=true;
+  }else{
+    user.admin=true;
+    user.superAdmin=false;
+  }
+  await user.save();
+  return res.status(200).json(user);
+};
+exports.putPointDown = async (req, res, next) => {
+  const user=await User.findById(req.params.id);
+  if(user.superAdmin){
+    user.superAdmin=false;
+    user.admin=true;
+  }else{
+    user.admin=false;
+    user.superAdmin=false;
+  }
+  await user.save();
+  return res.status(200).json(user);
+};
+exports.removeUser = async (req, res, next) => {
+  const user=await User.findById(req.params.id);
+  await user.remove();
+  return res.status(200).json({message:'ok'});
 };
