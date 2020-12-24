@@ -405,6 +405,14 @@ exports.postRecharge = async (req, res, next) => {
        
 };
 exports.postResponseRecharge = async (req, res, next) => {    
+    const data=`busi_code=UPI&err_code=!00000&err_msg=!00000`+
+    `&mer_no=gm761100000067975&mer_order_no=5fe341db97811392a80ec1a8`+
+    `&order_amount=1000&order_no=2012230000000526387201051906&order_time=2020-12-2320:10:51`+
+    `&pay_amount=1000&pay_time=2020-12-2320:13:16&status=SUCCESS&key=${process.env.PAYMENT_KEY}`
+    const sign = crypto.createHash('md5')
+    .update(data).digest("hex");
+    console.log(data);
+    console.log(sign)
     return res.redirect('/my/recharge');
 
 };
@@ -414,6 +422,7 @@ exports.postNotifyRecharge =async (req, res, next) => {
         console.log(req.body.order_amount);
         const recharging=await Recharging.findById(req.body.mer_order_no);
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        console.log(ip);
         if(recharging && recharging.sign==req.body.sign && ip=="149.129.214.64" && req.body.status=='SUCCESS'){
             const recharge=new Recharge();
             recharge.user=recharging.user;
@@ -424,6 +433,7 @@ exports.postNotifyRecharge =async (req, res, next) => {
             const user=await User.findById(recharge.user);
             user.budget+=parseInt(recharge.money);
             await user.save();
+            await recharging.remove();
             return res.json({});
         }
         return res.json({});
