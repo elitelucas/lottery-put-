@@ -380,7 +380,7 @@ exports.postRecharge = async (req, res, next) => {
     //     `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`);
     // console.log(sign);
     data.sign=sign;
-    await sign.save();
+    await data.save();
     body={...body, sign};
     // console.log(body);
     await unirest
