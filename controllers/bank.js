@@ -187,6 +187,13 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                         const saved_w = await withdrawls.save();
                         return res.status(400).json({ message: 'failed' });
                     }
+                }).catch(() => {
+                    withdrawls.status = -2;
+                    user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
+
+                    await user.save();
+                    const saved_w = await withdrawls.save();
+                    return res.status(400).json({ message: 'failed' });
                 });
             // console.log("withdraw status="+saved_w.status);
 
@@ -456,7 +463,7 @@ exports.postNotifyRecharge = async (req, res, next) => {
         console.log(sign);
         console.log(req.body.sign);
         if (recharging && sign == req.body.sign && ip == process.env.PAYMENT_IP && req.body.status == 'SUCCESS') {
-           console.log('Succeed');
+            console.log('Succeed');
             const recharge = new Recharge();
             recharge.user = recharging.user;
             recharge.phone = recharging.phone;

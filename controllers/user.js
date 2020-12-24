@@ -448,8 +448,8 @@ exports.getUser = async (req, res, next) => {
         user.refered2.push(tmp.phone);
       }
     }
-    const recharges = await Recharge.find({ user: req.params.id, status: 1 });
-    const withdrawals = await Withdrawl.find({ user: req.params.id, status: 1 });
+    const recharges = await Recharge.find({ user: req.params.id});
+    const withdrawals = await Withdrawl.find({ user: req.params.id});
     const rewards = await Reward.find({ userphone: user.phone });
     const enjoys = await MyEnjoy.find({ user: req.params.id });
     return res.status(200).json({ user, recharges, withdrawals, rewards, enjoys });
