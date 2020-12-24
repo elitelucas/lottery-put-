@@ -129,7 +129,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
     switch (req.body.status) {
         case -1: {
             //decline
-            user.budget = parseFloat(user.budget) + parseFloat(withdrawls.money);
+            user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
             withdrawls.status = -1;
             const saved_w = await withdrawls.save();
             const saved = await user.save();
@@ -171,7 +171,8 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                             const saved_w = await withdrawls.save();
                             return res.status(200).json({ message: 'ok' });
                         } else {
-                            user.budget = parseFloat(user.budget) + parseFloat(withdrawls.money);
+                            user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
+
                             withdrawls.status = -2;
                             await user.save();
                             const saved_w = await withdrawls.save();
@@ -180,7 +181,8 @@ exports.postAdminWithdrawl = async (req, res, next) => {
 
                     } else {
                         withdrawls.status = -2;
-                        user.budget = parseFloat(user.budget) + parseFloat(withdrawls.money);
+                        user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
+
                         await user.save();
                         const saved_w = await withdrawls.save();
                         return res.status(400).json({ message: 'failed' });
