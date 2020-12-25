@@ -21,6 +21,10 @@ const WithdrawlSchema = new Schema({
     type:String,
     index:true
   },
+  province:{
+    type:String,
+    index:true
+  },
   acc_no:{
     type:String,
     index:true

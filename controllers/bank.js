@@ -62,6 +62,7 @@ exports.postWithdrawl = async (req, res, next) => {
         const comp = {};
         comp.user = user._id;
         comp.bank_code = req.body.bankCode;
+        comp.province = req.body.province;
         comp.order_amount = req.body.amount;
         comp.acc_no = req.body.accNo;
         comp.acc_name = req.body.accName;
@@ -88,6 +89,7 @@ exports.getAdminWithdrawl = async (req, res, next) => {
             res_data[i].userPhone = aa.phone;
             res_data[i].order_amount = withdrawls[i].order_amount;
             res_data[i].bank_code = withdrawls[i].bank_code;
+            res_data[i].province = withdrawls[i].province;
             res_data[i].acc_no = withdrawls[i].acc_no;
             res_data[i].acc_name = withdrawls[i].acc_name;
             res_data[i].email = aa.email;
@@ -123,18 +125,24 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                 mer_no: process.env.PAYMENT_NO,
                 mer_order_no: req.body.id,
                 order_amount: withdrawl.order_amount,
+                province: withdrawl.province,
                 summary: withdrawl.summary
             };
             // console.log(process.env.PAYMENT_WITHDRAWAL_URL);
             const sign = crypto.createHash('md5')
                 .update(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
                     `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
-                    `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`).digest("hex");
+                    `&order_amount=${body.order_amount}&province=${body.province}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`).digest("hex");
             // console.log(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
             //     `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
             //     `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
             withdrawl.sign = sign;
             body = { ...body, sign };
+            console.log(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
+            `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
+            `&order_amount=${body.order_amount}&province=${body.province}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
+            console.log(body);
+
             await unirest
                 .post(process.env.PAYMENT_WITHDRAWAL_URL)
                 .headers({ 'Accept': 'application/json', 'Content-Type': 'application/json' })
@@ -143,7 +151,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                 .then(async (response) => {
                     // console.log(response)
                     if (response.body) {
-                        // console.log(response.body)
+                        console.log(response.body)
                         if (response.body.status.toLowerCase() == "success") {
                             withdrawl.status = 1;
                             const saved_w = await withdrawl.save();
