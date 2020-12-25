@@ -106,6 +106,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
         case -1: {
             //decline
             console.log(parseFloat(user.budget ? user.budget : 0));
+            console.log(withdrawl);
             console.log(parseFloat(withdrawl.money ? withdrawl.money : 0));
             user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
             console.log(user.budget);
