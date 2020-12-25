@@ -10,7 +10,7 @@ const Razorpay = require('razorpay');
 exports.postBank = (req, res, next) => {
 
     const comp = req.body;
-    console.log(comp);
+    // console.log(comp);
     User.findById(req.userFromToken._id, (err, user) => {
 
         user.bank_card.push(comp);
@@ -54,108 +54,87 @@ exports.postWithdrawl = async (req, res, next) => {
     //         return res.status(400).json({ error: "Withdraw is only allowed 1 time per hour!" });
     //     }
     // }
+    const user = await User.findById(req.userFromToken._id);
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    if (isMatch) {
+        if (parseFloat(user.budget) < amount)
+            return res.status(401).json({ error: "You don't have enough money!" });
+        const comp = {};
+        comp.user = user._id;
+        comp.bank_code = req.body.bankCode;
+        comp.order_amount = req.body.amount;
+        comp.acc_no = req.body.accNo;
+        comp.acc_name = req.body.accName;
+        comp.summary = "Withdrawal from the Lottery";
 
-
-    User.findById(req.userFromToken._id, (err, user) => {
-        bcrypt.compare(req.body.password, user.password).then((isMatch) => {
-
-            if (isMatch) {
-                if (parseFloat(user.budget) < amount)
-                    return res.status(401).json({ error: "You don't have enough money!" });
-                const comp = {};
-                comp.user = user._id;
-                comp.bank_code = req.body.bankCode;
-                comp.order_amount = req.body.amount;
-                comp.acc_no = req.body.accNo;
-                comp.acc_name = req.body.accName;
-                comp.summary = "Withdrawal from the Lottery";
-
-                user.budget = parseFloat(user.budget) - amount;
-                user.save();
-                new Withdrawl(comp).save();
-                return res.status(200).json({ message: 'success! It will be take a few minutes to transfer.' });
-            } else return res.status(401).json({ error: "Password incorrect!" });
-        });
-
-    })
-    // new Complaints(comp).save((err,user)=>{
-    //     console.log(err);
-    //     return res.status(200).json({message:"Send succesfully"});
-    // });
-
+        user.budget = parseFloat(user.budget) - amount;
+        await user.save();
+        await (new Withdrawl(comp)).save();
+        return res.status(200).json({ message: 'success! It will be take a few minutes to transfer.' });
+    } else return res.status(401).json({ error: "Password incorrect!" });
 };
 
-exports.getAdminWithdrawl = (req, res, next) => {
-
-
-    (async () => {
-        var withdrawls = await Withdrawl.find({ status: '0' }).sort("-createdAt");
-        const res_data = [];
-        for (var i = 0; i < withdrawls.length; i++) {
-            try {
-                const aa = await User.findById(withdrawls[i].user);
-                res_data[i] = {};
-                res_data[i]._id = withdrawls[i]._id;
-                res_data[i].status = withdrawls[i].status;
-                res_data[i].userId = aa._id;
-                res_data[i].userNickname = aa.nickname;
-                res_data[i].userPhone = aa.phone;
-                res_data[i].order_amount = withdrawls[i].order_amount;
-                res_data[i].bank_code = withdrawls[i].bank_code;
-                res_data[i].acc_no = withdrawls[i].acc_no;
-                res_data[i].acc_name = withdrawls[i].acc_name;
-                res_data[i].email = aa.email;
-            } catch (ex) {
-                continue;
-            }
-
+exports.getAdminWithdrawl = async (req, res, next) => {
+    var withdrawls = await Withdrawl.find({ status: '0' }).sort("-createdAt");
+    const res_data = [];
+    for (var i = 0; i < withdrawls.length; i++) {
+        try {
+            const aa = await User.findById(withdrawls[i].user);
+            res_data[i] = {};
+            res_data[i]._id = withdrawls[i]._id;
+            res_data[i].status = withdrawls[i].status;
+            res_data[i].userId = aa._id;
+            res_data[i].userNickname = aa.nickname;
+            res_data[i].userPhone = aa.phone;
+            res_data[i].order_amount = withdrawls[i].order_amount;
+            res_data[i].bank_code = withdrawls[i].bank_code;
+            res_data[i].acc_no = withdrawls[i].acc_no;
+            res_data[i].acc_name = withdrawls[i].acc_name;
+            res_data[i].email = aa.email;
+        } catch (ex) {
+            continue;
         }
-
-        return res.status(200).json({ data: res_data });
-    })();
-
-
-    // new Complaints(comp).save((err,user)=>{
-    //     console.log(err);
-    //     return res.status(200).json({message:"Send succesfully"});
-    // });
-
+    }
+    return res.status(200).json({ data: res_data });
 };
 
 exports.postAdminWithdrawl = async (req, res, next) => {
-    var withdrawls = await Withdrawl.findById(req.body.id);
-    var user = await User.findById(withdrawls.user);
+    var withdrawl = await Withdrawl.findById(req.body.id);
+    var user = await User.findById(withdrawl.user);
 
     switch (req.body.status) {
         case -1: {
             //decline
-            user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
-            withdrawls.status = -1;
-            const saved_w = await withdrawls.save();
+            console.log(parseFloat(user.budget ? user.budget : 0));
+            console.log(parseFloat(withdrawl.money ? withdrawl.money : 0));
+            user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
+            console.log(user.budget);
+            withdrawl.status = -1;
+            const saved_w = await withdrawl.save();
             const saved = await user.save();
             return res.status(200).json({ message: 'ok' });
         }
         case 1: {
             //approve
             let body = {
-                acc_name: withdrawls.acc_name,
-                acc_no: withdrawls.acc_no,
-                bank_code: withdrawls.bank_code,
+                acc_name: withdrawl.acc_name,
+                acc_no: withdrawl.acc_no,
+                bank_code: withdrawl.bank_code,
                 ccy_no: "INR",
                 mer_no: process.env.PAYMENT_NO,
                 mer_order_no: req.body.id,
-                order_amount: withdrawls.order_amount,
-                summary: withdrawls.summary
+                order_amount: withdrawl.order_amount,
+                summary: withdrawl.summary
             };
-            console.log(process.env.PAYMENT_WITHDRAWAL_URL);
+            // console.log(process.env.PAYMENT_WITHDRAWAL_URL);
             const sign = crypto.createHash('md5')
                 .update(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
                     `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
                     `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`).digest("hex");
-            console.log(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
-                `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
-                `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
-            withdrawls.sign = sign;
+            // console.log(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
+            //     `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
+            //     `&order_amount=${body.order_amount}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
+            withdrawl.sign = sign;
             body = { ...body, sign };
             await unirest
                 .post(process.env.PAYMENT_WITHDRAWAL_URL)
@@ -163,42 +142,39 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                 .encoding('utf-8')
                 .send(body)
                 .then(async (response) => {
-                    console.log(response)
+                    // console.log(response)
                     if (response.body) {
-                        console.log(response.body)
+                        // console.log(response.body)
                         if (response.body.status.toLowerCase() == "success") {
-                            withdrawls.status = 1;
-                            const saved_w = await withdrawls.save();
+                            withdrawl.status = 1;
+                            const saved_w = await withdrawl.save();
                             return res.status(200).json({ message: 'ok' });
                         } else {
-                            user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
+                            user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
 
-                            withdrawls.status = -2;
+                            withdrawl.status = -2;
                             await user.save();
-                            const saved_w = await withdrawls.save();
+                            const saved_w = await withdrawl.save();
                             return res.status(400).json({ message: 'failed' });
                         }
 
                     } else {
-                        withdrawls.status = -2;
-                        user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
+                        withdrawl.status = -2;
+                        user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
 
                         await user.save();
-                        const saved_w = await withdrawls.save();
+                        const saved_w = await withdrawl.save();
                         return res.status(400).json({ message: 'failed' });
                     }
-                }).catch(async (err)=>{
-                    withdrawls.status = -2;
-                    user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawls.money ? withdrawls.money : 0);
+                }).catch(async (err) => {
+                    withdrawl.status = -2;
+                    user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
 
                     await user.save();
-                    const saved_w = await withdrawls.save();
+                    const saved_w = await withdrawl.save();
                     return res.status(400).json({ message: 'failed' });
                 });
-            // console.log("withdraw status="+saved_w.status);
-
         }
-
     }
 
 
@@ -450,20 +426,20 @@ exports.getResponseRecharge = async (req, res, next) => {
 };
 exports.postNotifyRecharge = async (req, res, next) => {
     try {
-        console.log(req.body);
+        // console.log(req.body);
         const recharging = await Recharging.findById(req.body.mer_order_no);
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        console.log(ip);
+        // console.log(ip);
         const data = `busi_code=UPI&err_code=${req.body.err_code}&err_msg=${req.body.err_msg}` +
             `&mer_no=${req.body.mer_no}&mer_order_no=${req.body.mer_order_no}` +
             `&order_amount=${req.body.order_amount}&order_no=${req.body.order_no}&order_time=${req.body.order_time}` +
             `&pay_amount=${req.body.pay_amount}&pay_time=${req.body.pay_time}&status=${req.body.status}&key=${process.env.PAYMENT_KEY}`
         const sign = crypto.createHash('md5')
             .update(data).digest("hex");
-        console.log(sign);
-        console.log(req.body.sign);
+        // console.log(sign);
+        // console.log(req.body.sign);
         if (recharging && sign == req.body.sign && ip == process.env.PAYMENT_IP && req.body.status == 'SUCCESS') {
-            console.log('Succeed');
+            // console.log('Succeed');
             const recharge = new Recharge();
             recharge.user = recharging.user;
             recharge.phone = recharging.phone;
@@ -480,7 +456,7 @@ exports.postNotifyRecharge = async (req, res, next) => {
     } catch (err) {
         const recharging = await Recharging.find(req.body.mer_order_no);
 
-        console.log(sign);
+        // console.log(sign);
         return res.redirect('/my/recharge');
     }
 

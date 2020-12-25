@@ -51,7 +51,7 @@ exports.user_register = (req, res, next) => {
 
             request.end(function (res1) {
               if (res1.error) {
-                console.log(res1.raw_body);
+                // console.log(res1.raw_body);
                 return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
               } else {
                 userFields.otp = OTP;
@@ -60,7 +60,7 @@ exports.user_register = (req, res, next) => {
                   .save()
                   .then((user) => {
                     if (referer) {
-                      console.log(referer);
+                      // console.log(referer);
                       var tmp = referer.refered1;
                       tmp = tmp.concat([user._id]);
                       referer.refered1 = tmp;
@@ -125,7 +125,7 @@ exports.user_phone = (req, res, next) => {
 
     request.end(function (res1) {
       if (res1.error) {
-        console.log(res1.raw_body);
+        // console.log(res1.raw_body);
         return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
       } else {
         user.otp = OTP;
@@ -168,7 +168,7 @@ exports.user_phone_change = (req, res, next) => {
 
           request.end(function (res1) {
             if (res1.error) {
-              console.log(res1.raw_body);
+              // console.log(res1.raw_body);
               return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
             } else {
               user.phone = req.body.phone;
@@ -210,7 +210,7 @@ exports.user_phone_change = (req, res, next) => {
 
       request.end(function (res1) {
         if (res1.error) {
-          console.log(res1.raw_body);
+          // console.log(res1.raw_body);
           return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
         } else {
           user.otp = OTP;
@@ -295,7 +295,7 @@ exports.user_login = (req, res, next) => {
 
         request.end(function (res1) {
           if (res1.error) {
-            console.log(res1.raw_body);
+            // console.log(res1.raw_body);
             return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
           } else {
             user.otp = OTP;
@@ -326,7 +326,7 @@ exports.user_login = (req, res, next) => {
                 expiresIn: "1h",
               }
             );
-            console.log(jwtDecode(token));
+            // console.log(jwtDecode(token));
             userToken = "Bearer " + token;
             //no need to send hashed password to the frontend
             user.password = "";

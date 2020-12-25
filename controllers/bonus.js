@@ -121,7 +121,7 @@ exports.getRefered = (req, res, next) => {
                 const ttt=await User.findById(referers[i]);
                 referers[i]=ttt.phone;
             }
-            console.log(referers);
+            // console.log(referers);
              return res.status(200).json({data:referers});
         }else{
             const user=await User.findById(req.userFromToken._id);
@@ -130,7 +130,7 @@ exports.getRefered = (req, res, next) => {
                 const ttt=await User.findById(referers[i]);
                 referers[i]=ttt.phone;
             }
-            console.log(referers);
+            // console.log(referers);
              return res.status(200).json({data:referers});
         }
     })();
