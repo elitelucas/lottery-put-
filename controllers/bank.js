@@ -105,10 +105,8 @@ exports.postAdminWithdrawl = async (req, res, next) => {
     switch (req.body.status) {
         case -1: {
             //decline
-            console.log(parseFloat(user.budget ? user.budget : 0));
-            console.log(withdrawl);
-            console.log(parseFloat(withdrawl.money ? withdrawl.money : 0));
-            user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
+            
+            user.budget = parseFloat(user.budget) + parseFloat(withdrawl.order_amount);
             console.log(user.budget);
             withdrawl.status = -1;
             const saved_w = await withdrawl.save();
@@ -151,7 +149,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                             const saved_w = await withdrawl.save();
                             return res.status(200).json({ message: 'ok' });
                         } else {
-                            user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
+                            user.budget = parseFloat(user.budget) + parseFloat(withdrawl.order_amount);
 
                             withdrawl.status = -2;
                             await user.save();
@@ -161,7 +159,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
 
                     } else {
                         withdrawl.status = -2;
-                        user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
+                        user.budget = parseFloat(user.budget) + parseFloat(withdrawl.order_amount);
 
                         await user.save();
                         const saved_w = await withdrawl.save();
@@ -169,7 +167,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                     }
                 }).catch(async (err) => {
                     withdrawl.status = -2;
-                    user.budget = parseFloat(user.budget ? user.budget : 0) + parseFloat(withdrawl.money ? withdrawl.money : 0);
+                    user.budget = parseFloat(user.budget) + parseFloat(withdrawl.order_amount);
 
                     await user.save();
                     const saved_w = await withdrawl.save();
