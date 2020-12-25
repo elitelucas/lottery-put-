@@ -7,8 +7,17 @@ var status = 0;
 var d = new Date();
 var start_time = d.getTime();
 //betters info
+//first is level -parity,..
+//second is better list
+//third is amount of money
+//0 -> user.id
+//1 -> budget
+//2 -> array, 0~12 betting amount on  colors and numbers
+//3 -> array, 0~12 prize amount on colors and numbers
+//4 -> total betting amount
+//5 -> total prize amount
 var bet = [];
-//
+//better count
 var bet_no = [];
 //result
 var result = [];
@@ -31,13 +40,10 @@ for (var i = 0; i < 4; i++) {
 
 
 
-var completing = () => {
+var completing = async () => {
 	setTimeout(betting, 30000);
 	status = 1;
 	no++;
-
-
-
 	for (var k = 0; k < 4; k++) {
 		// console.log(auto);
 		if (auto == true) {
@@ -52,7 +58,7 @@ var completing = () => {
 				}
 
 			}
-			var tmp_budget, tmp_price, top_profits_arr=[];
+			var tmp_budget, tmp_price, top_profits_arr = [];
 			for (i = 0; i < 10; i++) {
 				if (i % 5 === 0) {
 					tmp_price = Math.floor(number_amounts[i] * 7.82 + number_amounts[12] * 3.41 + number_amounts[11 - (i % 2)] * 0.47);
@@ -82,24 +88,22 @@ var completing = () => {
 					if (top_budget < tmp_budget) {
 						top_budget = tmp_budget;
 						top_budget_num = i;
-						top_profits_arr=[];
+						top_profits_arr = [];
 						top_profits_arr.push(i);
-					}else if (top_budget == tmp_budget) {
+					} else if (top_budget == tmp_budget) {
 						top_profits_arr.push(i);
 					}
 				}
 
 
 			}
-			
-			if(top_profits_arr.length>1){
-				const index=Math.round(top_profits_arr.length*Math.random());
+
+			if (top_profits_arr.length > 1) {
+				const index = Math.round(top_profits_arr.length * Math.random());
 				result[k] = top_profits_arr[index];
-			}else
+			} else
 				result[k] = top_budget_num;
 		}
-
-
 
 		//each rooms -parity, sapre, ...
 		budget = 0;
@@ -113,8 +117,6 @@ var completing = () => {
 			for (var color = 0; color < 13; color++) {
 				if (bet[k][i][2][color] == 0)
 					continue;
-
-
 				switch (color) {
 					case 10:
 						{
@@ -123,9 +125,7 @@ var completing = () => {
 								bet[k][i][3][color] = parseInt(bet[k][i][2][color] * 0.98 * 2);
 							} else if (result[k] == 5) {
 								bet[k][i][3][color] = parseInt(bet[k][i][2][color] * 0.98 * 1.5);
-
 							}
-
 							// console.log(bet[i]);
 							break;
 						}
@@ -135,8 +135,6 @@ var completing = () => {
 								bet[k][i][3][color] = parseInt(bet[k][i][2][color] * 0.98 * 2);
 							} else if (result[k] == 0) {
 								bet[k][i][3][color] = parseInt(bet[k][i][2][color] * 0.98 * 1.5);
-
-
 							}
 							break;
 						}
@@ -168,99 +166,75 @@ var completing = () => {
 				myEnjoy.amount = bet[k][i][3][color] - bet[k][i][2][color];
 				myEnjoy.user = bet[k][i][0];
 				myEnjoy.category = k;
-				new MyEnjoy(myEnjoy)
-					.save()
-					.then((res) => {
-					})
-					.catch((res) => {
-					});
+				await (new MyEnjoy(myEnjoy)).save();
 				//player budget
 				/////////////////////////////////////
 				bet[0][i][1] += bet[k][i][3][color];
 				//Enjoy log 
 				////////////////////////////////
 				budget = budget - bet[k][i][3][color] + bet[k][i][2][color];
-
-
-
 			}
-
 		}
-		//Enjoy add
-		//////////////////////////
+		// Enjoy add
+		////////////////////////
 		const enjoy = {};
 		enjoy.joiner = bet_no[k];
 		enjoy.budget = budget;
 		enjoy.recommend = result[k];
 		enjoy.price = Math.floor(1000 + Math.random() * 9000);
+		// enjoy.price = 01000;
 		enjoy.level = k;
-
 		enjoy.createdAt = log_time;
+		// console.log('hey! here only once - ' +enjoy.createdAt + " created");
 
-
-
-		new Enjoy(enjoy)
-			.save()
-			.then((res) => {
-			})
-			.catch((res) => {
-			});
-
+		await (new Enjoy(enjoy)).save();
+		// console.log('hey! here only once - ' +enjoy.createdAt + " done");
 	}
-	bet[0].forEach((ele, index) => {
-		User.findById(ele[0], (err, doc) => {
-			// console.log(parseFloat(doc.budget)+" "+parseFloat(bet[2][index][1])+" "+ parseFloat(ele[1]));
-			if(doc){
-				doc.budget = parseFloat(doc.budget ? doc.budget : 0) - parseFloat(bet[2][index][1] ? bet[2][index][1] : 0) + parseFloat(ele[1] ? ele[1] : 0);
-				doc.save();
-			}
-			
-		});
-	});
-
-
-
-
+	for (let ppp = 0; ppp < bet[0].length; ppp++) {
+		const doc = await User.findById(bet[0][ppp][0]);
+		// console.log(parseFloat(doc.budget)+" "+parseFloat(bet[2][index][1])+" "+ parseFloat(ele[1]));
+		if (doc) {
+			doc.budget = parseFloat(doc.budget ? doc.budget : 0) - parseFloat(bet[2][ppp][1] ? bet[2][ppp][1] : 0) + parseFloat(bet[0][ppp][1] ? bet[0][ppp][1] : 0);
+			await doc.save();
+		}
+	}
 };
-var betting = () => {
+var betting = async () => {
 	setTimeout(completing, 150000);
 	var d = new Date();
 	var d = d.getFullYear() + "" + (1 + parseInt(d.getMonth())) + d.getUTCDate();
 	if (log_time === undefined) {
-		Enjoy.find({ createdAt: { '$regex': d + ".*" } }).sort({ createdAt: -1 }).exec((err, docs) => {
-			// console.log(err);
-			// console.log(docs);
-			if (err || docs.length == 0) {
-				log_time = d + "000" + 1;
-				no = 1;
+		const docs = await Enjoy.find({ createdAt: { '$regex': d + ".*" } }).sort({ createdAt: -1 });
+		// console.log(err);
+		// console.log(docs);
+		if (docs.length == 0) {
+			log_time = d + "000" + 1;
+			no = 1;
+		}
+		else {
+			const tmp_no = parseInt(docs[0].createdAt.substring(d.length));
+			if (tmp_no < 9)
+				log_time = d + "000" + (tmp_no + 1);
+			else if (tmp_no < 99)
+				log_time = d + "00" + (tmp_no + 1);
+			else if (tmp_no < 999)
+				log_time = d + "0" + (tmp_no + 1);
+			else if (tmp_no < 9999)
+				log_time = d + "" + (tmp_no + 1);
+			no = tmp_no + 1;
+		}
+		for (var i = 0; i < 4; i++) {
+			status = 0;
+			bet_no[i] = 0;
+			d = new Date();
+			start_time = d.getTime();
+			bet[i] = [];
+			result[i] = Math.round(Math.random() * 10);
+			if (result[i] == 10) {
+				result[i] = 0;
 			}
-			else {
-				const tmp_no = parseInt(docs[0].createdAt.substring(d.length));
-				if (tmp_no < 9)
-					log_time = d + "000" + (tmp_no + 1);
-				else if (tmp_no < 99)
-					log_time = d + "00" + (tmp_no + 1);
-				else if (tmp_no < 999)
-					log_time = d + "0" + (tmp_no + 1);
-				else if (tmp_no < 9999)
-					log_time = d + "" + (tmp_no + 1);
-				no = tmp_no + 1;
-			}
+		}
 
-
-			for (var i = 0; i < 4; i++) {
-				status = 0;
-				bet_no[i] = 0;
-				d = new Date();
-				start_time = d.getTime();
-				bet[i] = [];
-				result[i] = Math.round(Math.random() * 10);
-				if (result[i] == 10) {
-					result[i] = 0;
-				}
-			}
-
-		});
 	} else {
 		if (no < 10)
 			log_time = d + "000" + (no);
@@ -293,7 +267,7 @@ betting();
 
 
 
-exports.getEnjoy = (req, res, next) => {
+exports.getEnjoy = async (req, res, next) => {
 	//getInfo
 	try {
 		var d = new Date();
@@ -304,8 +278,8 @@ exports.getEnjoy = (req, res, next) => {
 				bet[i][bet_no[i]] = [];
 				bet[i][bet_no[i]][0] = req.userFromToken._id;
 			}
-
-			User.findById(req.userFromToken._id, (err, user) => {
+			const user = await User.findById(req.userFromToken._id);
+			if (user) {
 				for (var i = 0; i < 4; i++) {
 					bet[i][bet_no[i]][1] = user.budget;
 					bet[i][bet_no[i]][2] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -320,36 +294,24 @@ exports.getEnjoy = (req, res, next) => {
 				// console.log(bet[0][1]+bet[0][0]);
 				// console.log(bet_no);
 				// console.log(bet[bet_no-1]);
-				Enjoy.find({ level: level }).sort({ _id: -1 })
-					.limit(10)
-					.then(reviews => {
-						all_log[level] = reviews;
-						MyEnjoy.find({ '$and': [{ category: level }, { user: bet[level][bet_no[level] - 1][0] }] }).sort({ _id: -1 })
-							.limit(10)
-							.then(myReview => {
-								Enjoy.find({ level: level }).count().then(enjoy_count => {
-									MyEnjoy.find({ '$and': [{ category: level }, { user: bet[level][bet_no[level] - 1][0] }] }).count().then(my_enjoy_count => {
-										// console.log(myReview);
-										var tmp_bet = [];
-										tmp_bet[0] = bet[0][bet_no[level] - 1][1];
-										tmp_bet[1] = bet[0][bet_no[level] - 1][2];
-										return res.status(200).json({
-											log_time: log_time, time: cur_time - start_time,
-											records: all_log[level], 'bet': tmp_bet, my_records: myReview,
-											records_page: 1,
-											last_records_page: Math.ceil(enjoy_count / 10),
-											records_my_page: 1,
-											last_records_my_page: Math.ceil(my_enjoy_count / 10)
-										});
+				const reviews = await Enjoy.find({ level: level }).sort({ _id: -1 }).limit(10);
+				all_log[level] = reviews;
+				const myReview = await MyEnjoy.find({ '$and': [{ category: level }, { user: bet[level][bet_no[level] - 1][0] }] }).sort({ _id: -1 }).limit(10);
+				const enjoy_count = await Enjoy.countDocuments({ level: level });
+				const my_enjoy_count = await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: bet[level][bet_no[level] - 1][0] }] });
+				var tmp_bet = [];
+				tmp_bet[0] = bet[0][bet_no[level] - 1][1];
+				tmp_bet[1] = bet[0][bet_no[level] - 1][2];
+				return res.status(200).json({
+					log_time: log_time, time: cur_time - start_time,
+					records: all_log[level], 'bet': tmp_bet, my_records: myReview,
+					records_page: 1,
+					last_records_page: Math.ceil(enjoy_count / 10),
+					records_my_page: 1,
+					last_records_my_page: Math.ceil(my_enjoy_count / 10)
+				});
+			}
 
-
-									});
-								});
-							});
-
-					});
-
-			});
 		} else if (bet[level].find(ele => ele[0] == req.userFromToken._id) === undefined) {
 			for (var i = 0; i < 4; i++) {
 				bet[i][bet_no[i]] = [];
@@ -357,58 +319,42 @@ exports.getEnjoy = (req, res, next) => {
 			}
 			// console.log('prior bet'+bet);
 
-			User.findById(req.userFromToken._id, (err, user) => {
-				for (var i = 0; i < 4; i++) {
-					// console.log('after bet[i][bet_no[i]]'+bet[i][bet_no[i]]);
-					bet[i][bet_no[i]][1] = user.budget;
-					bet[i][bet_no[i]][2] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-					//each betters...
-					bet[i][bet_no[i]][3] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-					//total contract
-					bet[i][bet_no[i]][4] = 0;
-					bet_no[i]++;
-				}
-				//console.log("budget="+user);
+			const user = await User.findById(req.userFromToken._id);
+			for (var i = 0; i < 4; i++) {
+				// console.log('after bet[i][bet_no[i]]'+bet[i][bet_no[i]]);
+				bet[i][bet_no[i]][1] = user.budget;
+				bet[i][bet_no[i]][2] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+				//each betters...
+				bet[i][bet_no[i]][3] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+				//total contract
+				bet[i][bet_no[i]][4] = 0;
+				bet_no[i]++;
+			}
+			//console.log("budget="+user);
 
-				// console.log(bet[0][1]+bet[0][0]);
-				// console.log(bet_no);
-				// console.log(bet[bet_no-1]);
-				Enjoy.find({ level: level }).sort({ _id: -1 })
-					.limit(10)
-					.then(reviews => {
-						all_log[level] = reviews;
-						try {
-							MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).sort({ _id: -1 })
-								.limit(10)
-								.then(myReview => {
-									// console.log(myReview);
-									Enjoy.find({ level: level }).count().then(enjoy_count => {
-										MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).count().then(my_enjoy_count => {
-											// console.log(myReview);
-											var tmp_bet = [];
-											tmp_bet[0] = bet[0][bet_no[level] - 1][1];
-											tmp_bet[1] = bet[0][bet_no[level] - 1][2];
+			// console.log(bet[0][1]+bet[0][0]);
+			// console.log(bet_no);
+			// console.log(bet[bet_no-1]);
+			const reviews = await Enjoy.find({ level: level }).sort({ _id: -1 }).limit(10)
+			all_log[level] = reviews;
+			const myReview = await MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).sort({ _id: -1 }).limit(10);
+			// console.log(myReview);
+			const enjoy_count = await Enjoy.countDocuments({ level: level });
+			const my_enjoy_count = await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: req.userFromToken._id }] });
+			// console.log(myReview);
+			var tmp_bet = [];
+			tmp_bet[0] = bet[0][bet_no[level] - 1][1];
+			tmp_bet[1] = bet[0][bet_no[level] - 1][2];
 
-											return res.status(200).json({
-												log_time: log_time, time: cur_time - start_time,
-												records: all_log[level], 'bet': tmp_bet, my_records: myReview,
-												records_page: 1,
-												last_records_page: Math.ceil(enjoy_count / 10),
-												records_my_page: 1,
-												last_records_my_page: Math.ceil(my_enjoy_count / 10)
-											});
-
-
-										});
-									});
-
-								});
-						} catch (error) {
-							console.log('fsl My Enjoy try catch error: ', error.message);
-						}
-					});
-
+			return res.status(200).json({
+				log_time: log_time, time: cur_time - start_time,
+				records: all_log[level], 'bet': tmp_bet, my_records: myReview,
+				records_page: 1,
+				last_records_page: Math.ceil(enjoy_count / 10),
+				records_my_page: 1,
+				last_records_my_page: Math.ceil(my_enjoy_count / 10)
 			});
+
 		} else {
 			if (status == 0) {
 				//bettting
@@ -417,91 +363,50 @@ exports.getEnjoy = (req, res, next) => {
 				var _bet_id = bet[level].findIndex(ele => ele[0] == req.userFromToken._id);
 				// console.log(bet_no);
 				// console.log(bet[bet_no-1]);
-				Enjoy.find({ level: level }).sort({ _id: -1 })
-					.limit(10)
-					.then(reviews => {
-						all_log[level] = reviews;
-						MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).sort({ _id: -1 })
-							.limit(10)
-							.then(myReview => {
-
-								Enjoy.find({ level: level }).count().then(enjoy_count => {
-									MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).count().then(my_enjoy_count => {
-										// console.log(myReview);
-										var tmp_bet = [];
-										tmp_bet[0] = bet[0][_bet_id][1];
-										tmp_bet[1] = bet[level][_bet_id][2];
-										return res.status(200).json({
-											log_time: log_time, time: cur_time - start_time,
-											records: all_log[level], 'bet': tmp_bet, my_records: myReview,
-											records_page: 1,
-											last_records_page: Math.ceil(enjoy_count / 10),
-											records_my_page: 1,
-											last_records_my_page: Math.ceil(my_enjoy_count / 10)
-										});
-
-
-									});
-								});
-							});
-
-					});
-
-
+				const reviews = await Enjoy.find({ level: level }).sort({ _id: -1 }).limit(10);
+				all_log[level] = reviews;
+				const myReview = await MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).sort({ _id: -1 }).limit(10);
+				const enjoy_count = await Enjoy.countDocuments({ level: level });
+				const my_enjoy_count = await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: req.userFromToken._id }] });
+				// console.log(myReview);
+				var tmp_bet = [];
+				tmp_bet[0] = bet[0][_bet_id][1];
+				tmp_bet[1] = bet[level][_bet_id][2];
+				return res.status(200).json({
+					log_time: log_time, time: cur_time - start_time,
+					records: all_log[level], 'bet': tmp_bet, my_records: myReview,
+					records_page: 1,
+					last_records_page: Math.ceil(enjoy_count / 10),
+					records_my_page: 1,
+					last_records_my_page: Math.ceil(my_enjoy_count / 10)
+				});
 			} else {
-
-
 				var _bet = bet[level].find(ele => ele[0] == req.userFromToken._id);
-				var _bet_id = bet[level].findIndex(ele => ele[0] == req.userFromToken._id);
-
-				// console.log('_bet_id'+_bet_id);
-				Enjoy.find({ level: level }).sort({ _id: -1 })
-					.limit(10)
-					.then(reviews => {
-						all_log[level] = reviews;
-						MyEnjoy.find({ '$and': [{ category: level }, { user: _bet[0] }] }).sort({ _id: -1 })
-							.limit(10)
-							.then(myReview => {
-								var tmp_contract = [0, 0, 0, 0];
-								var tmp_price = [0, 0, 0, 0];
-								for (var i = 0; i < 4; i++) {
-									// console.log('bet[i][_bet_id]='+bet[i][_bet_id]);
-									tmp_contract[i] = bet[i][_bet_id][4];
-									tmp_price[i] = Math.floor(1000 + Math.random() * 9000);
-								
-
-
-								}
-								// console.log("price="+tmp_price);
-								// console.log(myReview);
-
-								Enjoy.find({ level: level }).count().then(enjoy_count => {
-									MyEnjoy.find({ '$and': [{ category: level }, { user: _bet[0] }] }).count().then(my_enjoy_count => {
-										var tmp_bet = [];
-										// console.log('_bet_id='+_bet_id);
-										// console.log(bet[level][_bet_id]);
-										tmp_bet[0] = bet[0][_bet_id][1];
-										tmp_bet[1] = bet[level][_bet_id][2];
-										return res.status(200).json({
-											number: result, price: tmp_price, contract: tmp_contract, log_time: log_time, time: cur_time - start_time,
-											records: all_log[level], 'bet': tmp_bet, my_records: myReview,
-											records_page: 1,
-											last_records_page: Math.ceil(enjoy_count / 10),
-											records_my_page: 1,
-											last_records_my_page: Math.ceil(my_enjoy_count / 10)
-										});
-
-
-									});
-								});
-
-
-							});
-
-					});
-
-
-
+				var _bet_id = bet[level].findIndex(ele => ele[0] == req.userFromToken._id);;
+				const reviews = await Enjoy.find({ level: level }).sort({ _id: -1 }).limit(10);
+				all_log[level] = reviews;
+				const myReview=await MyEnjoy.find({ '$and': [{ category: level }, { user: _bet[0] }] }).sort({ _id: -1 }).limit(10);
+				var tmp_contract = [0, 0, 0, 0];
+				var tmp_price = [0, 0, 0, 0];
+				for (var i = 0; i < 4; i++) {
+					tmp_contract[i] = bet[i][_bet_id][4];
+					tmp_price[i] = Math.floor(1000 + Math.random() * 9000);
+				}
+				const enjoy_count=await Enjoy.countDocuments({ level: level });
+				const my_enjoy_count=await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: _bet[0] }] });
+				var tmp_bet = [];
+				// console.log('_bet_id='+_bet_id);
+				// console.log(bet[level][_bet_id]);
+				tmp_bet[0] = bet[0][_bet_id][1];
+				tmp_bet[1] = bet[level][_bet_id][2];
+				return res.status(200).json({
+					number: result, price: tmp_price, contract: tmp_contract, log_time: log_time, time: cur_time - start_time,
+					records: all_log[level], 'bet': tmp_bet, my_records: myReview,
+					records_page: 1,
+					last_records_page: Math.ceil(enjoy_count / 10),
+					records_my_page: 1,
+					last_records_my_page: Math.ceil(my_enjoy_count / 10)
+				});
 			}
 		}
 	} catch (error) {
@@ -510,7 +415,7 @@ exports.getEnjoy = (req, res, next) => {
 
 
 };
-exports.postEnjoy = (req, res, next) => {
+exports.postEnjoy =async (req, res, next) => {
 	try {
 		var d = new Date();
 		var cur_time = d.getTime();
@@ -537,29 +442,27 @@ exports.postEnjoy = (req, res, next) => {
 			var tmp = [];
 			// const bonus1 = parseInt(input_contract) >= 1000 ? parseInt(input_contract) * 0.003 : parseInt(input_contract) * 0.006;
 			// const bonus2 = parseInt(input_contract) >= 1000 ? parseInt(input_contract) * 0.0015 : parseInt(input_contract) * 0.003;
-			const bonus1 =  parseInt(input_contract) * 0.01;
-			const bonus2 =  parseInt(input_contract) * 0.005;
-			User.findById(req.userFromToken._id, (err, user) => {
-				if(user.refer1){
-					const tmp1 = {};
-					tmp1.better = req.userFromToken._id;
-					tmp1.money = bonus1;
-					tmp1.receiver = user.refer1;
-					new Bonus1(tmp1)
-						.save();
-				}
-				if(user.refer2){
-					const tmp1 = {};
-					tmp1.better = req.userFromToken._id;
-					tmp1.money = bonus2;
-					tmp1.receiver = user.refer2;
-					new Bonus2(tmp1)
-						.save();
-				}			
-				tmp[0] = bet[0][_bet_id][1];
-				tmp[1] = bet[level][_bet_id][2];
-				return res.status(200).json({ 'bet': tmp });
-			});
+			const bonus1 = parseInt(input_contract) * 0.01;
+			const bonus2 = parseInt(input_contract) * 0.005;
+			const user=await User.findById(req.userFromToken._id);
+			
+			if (user.refer1) {
+				const tmp1 = {};
+				tmp1.better = req.userFromToken._id;
+				tmp1.money = bonus1;
+				tmp1.receiver = user.refer1;
+				await (new Bonus1(tmp1)).save();
+			}
+			if (user.refer2) {
+				const tmp1 = {};
+				tmp1.better = req.userFromToken._id;
+				tmp1.money = bonus2;
+				tmp1.receiver = user.refer2;
+				await (new Bonus2(tmp1)).save();
+			}
+			tmp[0] = bet[0][_bet_id][1];
+			tmp[1] = bet[level][_bet_id][2];
+			return res.status(200).json({ 'bet': tmp });
 
 		} else {
 			return res.status(200).json({ 'error': "finished", time: cur_time - start_time });
@@ -569,68 +472,42 @@ exports.postEnjoy = (req, res, next) => {
 	}
 
 };
-exports.getEnjoyPage = (req, res, next) => {
+exports.getEnjoyPage =async (req, res, next) => {
 	try {
 		const level = req.params.level;
 		const page = req.params.page;
-		Enjoy.find({ level: level }).sort({ _id: -1 })
-			.skip((page - 1) * 10)
-			.limit(10)
-			.then(reviews => {
-				Enjoy.find({ level: level }).count().then(enjoy_count => {
-
-					return res.status(200).json({
-						records: reviews,
-						records_page: page,
-						last_records_page: Math.ceil(enjoy_count / 10)
-					});
-
-
-				});
-			});
+		const reviews=await Enjoy.find({ level: level }).sort({ _id: -1 }).skip((page - 1) * 10).limit(10)
+		const enjoy_count=await Enjoy.countDocuments({ level: level });
+		return res.status(200).json({
+			records: reviews,
+			records_page: page,
+			last_records_page: Math.ceil(enjoy_count / 10)
+		});
 	} catch (error) {
 		next(error);
 	}
-
-
-
 };
-exports.getEnjoyMyPage = (req, res, next) => {
+exports.getEnjoyMyPage =async (req, res, next) => {
 	try {
 		const level = req.params.level;
 		const page = req.params.page;
-		MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).sort({ _id: -1 })
-			.skip((page - 1) * 10)
-			.limit(10)
-			.then(reviews => {
-				MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).count().then(enjoy_count => {
-
-					return res.status(200).json({
-						my_records: reviews,
-						records_my_page: page,
-						last_records_my_page: Math.ceil(enjoy_count / 10)
-					});
-
-
-				});
-			});
+		const reviews=await MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).sort({ _id: -1 }).skip((page - 1) * 10).limit(10);
+		const enjoy_count=await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: req.userFromToken._id }] });
+		return res.status(200).json({
+			my_records: reviews,
+			records_my_page: page,
+			last_records_my_page: Math.ceil(enjoy_count / 10)
+		});
 	} catch (error) {
 		next(error);
 	}
-
-
-
 };
 
-
-
-exports.getEnjoyAdmin = (req, res, next) => {
+exports.getEnjoyAdmin =async (req, res, next) => {
 	try {
 		if (req.params.level == 4) {
 			var d = new Date();
 			var cur_time = d.getTime();
-
-
 			res.status(200).json({
 				log_time: log_time,
 				time: cur_time - start_time,
@@ -640,11 +517,8 @@ exports.getEnjoyAdmin = (req, res, next) => {
 			});
 		} else {
 			const level = req.params.level;
-
 			var d = new Date();
 			var cur_time = d.getTime();
-
-
 			res.status(200).json({
 				log_time: log_time,
 				time: cur_time - start_time,
@@ -656,11 +530,6 @@ exports.getEnjoyAdmin = (req, res, next) => {
 	} catch (error) {
 		next(error);
 	}
-
-
-
-
-
 };
 exports.postEnjoyAdmin = (req, res, next) => {
 	try {
@@ -677,22 +546,13 @@ exports.postEnjoyAdmin = (req, res, next) => {
 			} else {
 				return res.status(200).json({ 'error': 'Numbers Range 0 ~ 9' });
 			}
-
-
-
 		} else {
 			// console.log("number="+number);
-
-
 			return res.status(200).json({ 'error': 'Already finished!' });
 		}
 	} catch (error) {
 		next(error);
 	}
-
-
-
-
 };
 exports.postEnjoyAdminAuto = (req, res, next) => {
 	auto = req.body.auto;

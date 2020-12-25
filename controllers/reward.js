@@ -8,7 +8,7 @@ exports.listReward=(req,res,next)=>{
     .skip((page-1)*10)
     .limit(10)
     .then(rewards => {
-        Reward.find({}).count().then(rewards_count=>{
+        Reward.countDocuments({}).then(rewards_count=>{
   
           return res.status(200).json({rewards:rewards,
             page:page,
