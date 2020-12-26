@@ -2,10 +2,11 @@ const bcrypt = require("bcryptjs");
 const Complaints = require("../models/Complaints");
 const jwt = require("jsonwebtoken");
 const { Console } = require("console");
-exports.getComplaints = (req, res, next) => {
-    Complaints.find({user:req.userFromToken._id},(err,data)=>{
-       return res.status(200).json({data:data});
-    });
+exports.getComplaints =async (req, res, next) => {
+    const page = req.params.page;
+    const data=await Complaints.find({user:req.userFromToken._id}).skip((page-1)*20).limit(20);
+    const total=await Complaints.countDocuments({user:req.userFromToken._id});
+    return res.status(200).json({data:data,page,last_page:Math.ceil(total / 20)});
     
 };
 
@@ -29,10 +30,11 @@ exports.postComplaints = (req, res, next) => {
     });
 
 };
-exports.getComplaintsAdmin = (req, res, next) => {
-    Complaints.find({},(err,data)=>{
-        return res.status(200).json({data:data});
-    });
+exports.getComplaintsAdmin =async (req, res, next) => {
+    const page = req.params.page;
+    const data=await Complaints.find({}).skip((page-1)*20).limit(20);
+    const total=await Complaints.countDocuments({});
+    return res.status(200).json({data:data,page,last_page:Math.ceil(total / 20)});   
     
 };
 exports.postComplaintsAdmin = (req, res, next) => {

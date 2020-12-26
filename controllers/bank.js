@@ -76,7 +76,9 @@ exports.postWithdrawl = async (req, res, next) => {
 };
 
 exports.getAdminWithdrawl = async (req, res, next) => {
-    var withdrawls = await Withdrawl.find({ status: '0' }).sort("-createdAt");
+    const page = req.params.page;
+    const withdrawls = await Withdrawl.find({ status: '0' }).sort("-createdAt").skip((page - 1) * 20).limit(20);
+    const total = await Withdrawl.countDocuments({ status: '0' });
     const res_data = [];
     for (var i = 0; i < withdrawls.length; i++) {
         try {
@@ -97,7 +99,7 @@ exports.getAdminWithdrawl = async (req, res, next) => {
             continue;
         }
     }
-    return res.status(200).json({ data: res_data });
+    return res.status(200).json({ data: res_data, page, last_page: Math.ceil(total / 20) });
 };
 
 exports.postAdminWithdrawl = async (req, res, next) => {
@@ -107,7 +109,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
     switch (req.body.status) {
         case -1: {
             //decline
-            
+
             user.budget = parseFloat(user.budget) + parseFloat(withdrawl.order_amount);
             console.log(user.budget);
             withdrawl.status = -1;
@@ -139,8 +141,8 @@ exports.postAdminWithdrawl = async (req, res, next) => {
             withdrawl.sign = sign;
             body = { ...body, sign };
             console.log(`acc_name=${body.acc_name}&acc_no=${body.acc_no}&bank_code=${body.bank_code}` +
-            `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
-            `&order_amount=${body.order_amount}&province=${body.province}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
+                `&ccy_no=${body.ccy_no}&mer_no=${body.mer_no}&mer_order_no=${body.mer_order_no}` +
+                `&order_amount=${body.order_amount}&province=${body.province}&summary=${body.summary}&key=${process.env.PAYMENT_KEY}`)
             console.log(body);
 
             await unirest
@@ -195,33 +197,34 @@ exports.postAdminWithdrawl = async (req, res, next) => {
 
 
 
-exports.getAdminRecharge = (req, res, next) => {
+exports.getAdminRecharge = async (req, res, next) => {
+    const page = req.params.page;
+    const recharges = await Recharge.find({}).sort("-createdAt").skip((page - 1) * 20).limit(20);
+    const total = await Recharge.countDocuments({});
+    const res_data = [];
+    for (var i = 0; i < recharges.length; i++) {
+        try {
+            const aa = await User.findById(recharges[i].user);
+            res_data[i] = {};
+            res_data[i]._id = recharges[i]._id;
+            res_data[i].status = recharges[i].status;
+            res_data[i].orderID = recharges[i].orderID;
+            res_data[i].createdAt = recharges[i].createdAt;
+            res_data[i].userId = aa._id;
+            res_data[i].userNickname = aa.nickname;
+            res_data[i].userPhone = aa.phone;
+            res_data[i].money = recharges[i].money;
 
-
-    (async () => {
-        var recharges = await Recharge.find({}).sort("-createdAt");
-        const res_data = [];
-        for (var i = 0; i < recharges.length; i++) {
-            try {
-                const aa = await User.findById(recharges[i].user);
-                res_data[i] = {};
-                res_data[i]._id = recharges[i]._id;
-                res_data[i].status = recharges[i].status;
-                res_data[i].orderID = recharges[i].orderID;
-                res_data[i].createdAt = recharges[i].createdAt;
-                res_data[i].userId = aa._id;
-                res_data[i].userNickname = aa.nickname;
-                res_data[i].userPhone = aa.phone;
-                res_data[i].money = recharges[i].money;
-
-            } catch (ex) {
-                continue;
-            }
-
+        } catch (ex) {
+            continue;
         }
 
-        return res.status(200).json({ data: res_data });
-    })();
+    }
+
+    return res.status(200).json({
+        data: res_data, page: page,
+        last_page: Math.ceil(total / 20)
+    });
 
 
     // new Complaints(comp).save((err,user)=>{
@@ -293,14 +296,11 @@ exports.postAdminRecharge = (req, res, next) => {
 
 
 
-exports.getWithdrawlList = (req, res, next) => {
-
-
-    (async () => {
-        var withdrawls = await Withdrawl.find({ user: req.userFromToken._id });
-
-        return res.status(200).json({ data: withdrawls });
-    })();
+exports.getWithdrawlList = async (req, res, next) => {
+    const page = req.params.page;
+    const withdrawls = await Withdrawl.find({ user: req.userFromToken._id }).sort({ _id: -1 }).skip((page - 1) * 20).limit(20);
+    const total = await User.countDocuments({ user: req.userFromToken._id });
+    return res.status(200).json({ data: withdrawls, page, last_page: Math.ceil(total / 20) });
 
 
     // new Complaints(comp).save((err,user)=>{
@@ -310,20 +310,12 @@ exports.getWithdrawlList = (req, res, next) => {
 
 };
 
-exports.getRechargeList = (req, res, next) => {
+exports.getRechargeList = async (req, res, next) => {
+    const page = req.params.page;
+    const recharges = await Recharge.find({ user: req.userFromToken._id }).sort({ _id: -1 }).skip((page - 1) * 20).limit(20);
+    const total=await Recharge.countDocuments({user:req.userFromToken._id});
+    return res.status(200).json({ data: recharges, page, last_page: Math.ceil(total / 20) });
 
-
-    (async () => {
-        var recharges = await Recharge.find({ user: req.userFromToken._id });
-
-        return res.status(200).json({ data: recharges });
-    })();
-
-
-    // new Complaints(comp).save((err,user)=>{
-    //     console.log(err);
-    //     return res.status(200).json({message:"Send succesfully"});
-    // });
 
 };
 exports.postRecharge = async (req, res, next) => {
@@ -449,12 +441,18 @@ exports.postNotifyRecharge = async (req, res, next) => {
             // console.log('Succeed');
             const recharge = new Recharge();
             recharge.user = recharging.user;
-            recharge.phone = recharging.phone;
+            recharge.phone = recharging.phone;            
             recharge.money = req.body.pay_amount;
             recharge.status = 1;
             await recharge.save();
             const user = await User.findById(recharge.user);
-            user.budget += parseInt(recharge.money);
+            if(user.recharged){
+                user.budget += parseInt(recharge.money);
+            }else{
+                user.budget += Math.floor(parseInt(recharge.money)*1.2);
+                user.recharged=true;
+            }
+            
             await user.save();
             await recharging.remove();
             return res.json({});

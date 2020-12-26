@@ -42,7 +42,7 @@ const UserSchema = new Schema({
   budget:
   {
     type: Number,
-    default: 0,
+    default: 20,
     required: true
   },
   refer2: {
@@ -64,6 +64,10 @@ const UserSchema = new Schema({
   },
   email: {
     type: String
+  },
+  recharged:{
+    type:Boolean,
+    default:false
   },
   // phoneDetails: {
   //   country: {

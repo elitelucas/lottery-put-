@@ -47,30 +47,30 @@ router.get("/enjoy-admin/:level", checkAuth, checkAdmin, checkSuperAdmin, enjoy_
 router.post("/enjoy-admin", checkAuth, checkAdmin, checkSuperAdmin, enjoy_controller.postEnjoyAdmin);
 router.post("/enjoy-admin-auto", checkAuth, checkAdmin, checkSuperAdmin, enjoy_controller.postEnjoyAdminAuto);
 //complaints
-router.get("/complaints", checkAuth, complaints_controller.getComplaints);
+router.get("/complaints/:page", checkAuth, complaints_controller.getComplaints);
 router.post("/complaints", checkAuth, complaints_controller.postComplaints);
 router.put("/complaints", checkAuth, checkAdmin, complaints_controller.putComplaints);
-router.get("/complaints-admin", checkAuth, checkAdmin, complaints_controller.getComplaintsAdmin);
+router.get("/complaints-admin/:page", checkAuth, checkAdmin, complaints_controller.getComplaintsAdmin);
 router.post("/complaints-admin", checkAuth, checkAdmin, complaints_controller.postComplaintsAdmin);
 
 
 //Referal
-router.get("/bonus/:no", checkAuth, bonus_controller.getBonus);
+router.get("/bonus/:no/:page?", checkAuth, bonus_controller.getBonus);
 router.post("/apply/:no", checkAuth, bonus_controller.postApply);
-router.get("/apply", checkAuth, bonus_controller.getApply);
+router.get("/apply/:page", checkAuth, bonus_controller.getApply);
 router.get("/refered/:level", checkAuth, bonus_controller.getRefered);
 
 //Bank
 router.post("/bank", checkAuth, bank_controller.postBank);
 router.delete("/bank", checkAuth, bank_controller.deleteBank);
 router.post("/withdrawl", checkAuth, bank_controller.postWithdrawl);
-router.get("/withdrawlList", checkAuth, bank_controller.getWithdrawlList);
-router.get("/withdrawl-admin", checkAuth, checkAdmin, bank_controller.getAdminWithdrawl);
+router.get("/withdrawlList/:page", checkAuth, bank_controller.getWithdrawlList);
+router.get("/withdrawl-admin/:page", checkAuth, checkAdmin, bank_controller.getAdminWithdrawl);
 router.post("/withdrawl-admin", checkAuth, checkAdmin, bank_controller.postAdminWithdrawl);
-router.get("/recharge-admin", checkAuth, checkAdmin, bank_controller.getAdminRecharge);
+router.get("/recharge-admin/:page", checkAuth, checkAdmin, bank_controller.getAdminRecharge);
 router.post("/recharge-admin", checkAuth, checkAdmin, bank_controller.postAdminRecharge);
 router.post("/recharge", checkAuth, bank_controller.postRecharge);
-router.get("/rechargeList", checkAuth, bank_controller.getRechargeList);
+router.get("/rechargeList/:page", checkAuth, bank_controller.getRechargeList);
 router.post("/response-recharge", bank_controller.postResponseRecharge);
 router.get("/response-recharge", bank_controller.getResponseRecharge);
 router.post("/notify-recharge", bank_controller.postNotifyRecharge);
@@ -87,6 +87,7 @@ router.get("/users/:page/:search?", checkAuth, checkAdmin, user_controller.getUs
 router.get("/user/:id", checkAuth, checkAdmin, user_controller.getUser);
 router.put("/pointUp/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.putPointUp);
 router.put("/pointDown/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.putPointDown);
+router.post("/balance/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.patchBalance);
 router.delete("/remove-user/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.removeUser);
 router.post("/add-user/", checkAuth, checkAdmin, checkSuperAdmin, user_controller.addUser);
 module.exports = router;

@@ -22,7 +22,7 @@ exports.user_register = (req, res, next) => {
           const userFields = {};
           userFields.phone = req.body.phone;
           userFields.password = hash;
-          userFields.budget = 0;
+          userFields.budget = 20;
           userFields.email = '';
           userFields.recommendationCode = parseInt(Math.random() * 1000000);
           User.findById(req.body.recommendationCode, (err, referer) => {
@@ -407,21 +407,21 @@ exports.getUsers = async (req, res, next) => {
   const search = req.params.search;
   const page = req.params.page;
   if (search) {
-    const users = await User.find({ phone: search }).sort({ _id: -1 }).skip((page - 1) * 5).limit(5);
+    const users = await User.find({ phone: search }).sort({ _id: -1 }).skip((page - 1) * 20).limit(20);
     const total = await User.countDocuments({ phone: search });
     return res.status(200).json({
       users: users,
       page: page,
-      last_page: Math.ceil(total / 5)
+      last_page: Math.ceil(total / 20)
     });
   } else {
-    const users = await User.find({}).sort({ _id: -1 }).skip((page - 1) * 5).limit(5);
+    const users = await User.find({}).sort({ _id: -1 }).skip((page - 1) * 20).limit(20);
     const total = await User.countDocuments({});
 
     return res.status(200).json({
       users: users,
       page: page,
-      last_page: Math.ceil(total / 5)
+      last_page: Math.ceil(total / 20)
     });
   }
 };
@@ -530,5 +530,12 @@ exports.addUser = async (req, res, next) => {
 
   }
 
+  return res.status(200).json(user);
+};
+
+exports.patchBalance = async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  user.budget=req.body.balance;
+  await user.save();
   return res.status(200).json(user);
 };
