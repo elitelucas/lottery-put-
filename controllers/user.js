@@ -22,7 +22,7 @@ exports.user_register = (req, res, next) => {
           const userFields = {};
           userFields.phone = req.body.phone;
           userFields.password = hash;
-          userFields.budget = 20;
+          userFields.budget = 0;
           userFields.email = '';
           userFields.recommendationCode = parseInt(Math.random() * 1000000);
           User.findById(req.body.recommendationCode, (err, referer) => {
@@ -59,22 +59,6 @@ exports.user_register = (req, res, next) => {
                 new User(userFields)
                   .save()
                   .then((user) => {
-                    if (referer) {
-                      // console.log(referer);
-                      var tmp = referer.refered1;
-                      tmp = tmp.concat([user._id]);
-                      referer.refered1 = tmp;
-                      referer.save();
-                      User.findById(user.refer2, (err, referer2) => {
-                        if (!err && referer2) {
-                          var tmp = referer2.refered2;
-                          tmp = tmp.concat([user._id]);
-                          referer2.refered2 = tmp;
-                          referer2.save();
-                        }
-                      });
-                    }
-
                     return res.status(200).json({ messgae: 'ok' });
                   })
                   .catch((err) => {
@@ -233,41 +217,57 @@ exports.user_phone_change = (req, res, next) => {
 
 };
 
-exports.user_verify = (req, res, next) => {
+exports.user_verify = async (req, res, next) => {
   // console.log("verify works----");
   //find the user first
-
-  User.findOne({ phone: req.body.phone }, (err, user) => {
-    if (!user || err) return res.status(400).json({ error: "something went wrong!" });
-    //start verify
-    var now = (new Date()).getTime();
-    if (now - parseInt(user.updatedAt) > 120000)
-      return res.status(400).json({ error: "time out!" });
-    if (user.otp == req.body.otp) {
-      user.updatedAt = 0;
-      user.otp = '';
-      user.phone_verified = true;
-      user.save((err) => {
-        const token = jwt.sign(
-          {
-            phone: user.phone,
-            _id: user._id
-
-          },
-          process.env.AUTH_SECRET,
-          {
-            expiresIn: "1h",
-          }
-        );
-        userToken = "Bearer " + token;
-        //no need to send hashed password to the frontend
-        user.password = "";
-        return res.status(200).json({ user, userToken });
-      });
-    } else {
-      return res.status(400).json({ error: "otp failed!" });
+  const user = await User.findOne({ phone: req.body.phone });
+  if (!user) return res.status(400).json({ error: "something went wrong!" });
+  //start verify
+  var now = (new Date()).getTime();
+  if (now - parseInt(user.updatedAt) > 120000) {
+    return res.status(400).json({ error: "time out!" });
+  }
+  if (user.otp == req.body.otp) {
+    const referer = await User.findById(user.refer1);
+    if (referer) {
+      var tmp = referer.refered1;
+      if (!tmp.find(user._id)) {
+        tmp = tmp.concat([user._id]);
+        referer.refered1 = tmp;
+        referer.save();
+      }
+      const referer2=await User.findById(user.refer2);
+      if (referer2) {
+        tmp = referer2.refered2;
+        if(!tmp.find(user._id)){
+          tmp = tmp.concat([user._id]);
+          referer2.refered2 = tmp;
+          referer2.save();
+        }        
+      }
     }
-  });
+    user.updatedAt = 0;
+    user.otp = '';
+    user.phone_verified = true;
+    await user.save();
+    const token = jwt.sign(
+      {
+        phone: user.phone,
+        _id: user._id
+
+      },
+      process.env.AUTH_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+    userToken = "Bearer " + token;
+    //no need to send hashed password to the frontend
+    user.password = "";
+    return res.status(200).json({ user, userToken });
+  } else {
+    return res.status(400).json({ error: "otp failed!" });
+  }
 };
 exports.user_login = (req, res, next) => {
   // console.log("login works, ->", req.body.phone);
@@ -448,8 +448,8 @@ exports.getUser = async (req, res, next) => {
         user.refered2.push(tmp.phone);
       }
     }
-    const recharges = await Recharge.find({ user: req.params.id});
-    const withdrawals = await Withdrawl.find({ user: req.params.id});
+    const recharges = await Recharge.find({ user: req.params.id });
+    const withdrawals = await Withdrawl.find({ user: req.params.id });
     const rewards = await Reward.find({ userphone: user.phone });
     const enjoys = await MyEnjoy.find({ user: req.params.id });
     return res.status(200).json({ user, recharges, withdrawals, rewards, enjoys });
@@ -502,7 +502,7 @@ exports.addUser = async (req, res, next) => {
     tmp.admin = true;
     tmp.superAdmin = false;
   }
-  tmp.phone_verified=true;
+  tmp.phone_verified = true;
   const user = await (new User(tmp)).save();
   try {
     const referrer1 = await User.findById(req.body.referral);
@@ -535,7 +535,7 @@ exports.addUser = async (req, res, next) => {
 
 exports.patchBalance = async (req, res, next) => {
   const user = await User.findById(req.params.id);
-  user.budget=req.body.balance;
+  user.budget = req.body.balance;
   await user.save();
   return res.status(200).json(user);
 };
