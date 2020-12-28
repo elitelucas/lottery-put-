@@ -4,10 +4,38 @@ const jwt = require("jsonwebtoken");
 var unirest = require("unirest");
 var request = unirest("POST", "https://www.fast2sms.com/dev/bulk");
 const jwtDecode = require('jwt-decode');
+const { body, validationResult } = require('express-validator');
+setTimeout(async () => {
+  const users = await User.find({ phone_verified: false });
+  for (let i = 0; i < users.length; i++) {
+    let now = (new Date()).getTime();
+    if (!users[i].updatedAt || now - users[i].updatedAt > 310000) {
+      const referrer1 = await User.findById(users[i].refer1);
+      if (referrer1) {
+        const tmp = referrer1.refered1;
+        tmp.splice(tmp.findIndex(ele => ele == users[i].id), 1);
+        referrer1.refered1 = tmp;
+        await referrer1.save();
+      }
+      const referrer2 = await User.findById(users[i].refer2);
+      if (referrer2) {
+        const tmp = referrer2.refered2;
+        tmp.splice(tmp.findIndex(ele => ele == users[i].id), 1);
+        referrer2.refered2 = tmp;
+        await referrer2.save();
+      }
+      await users[i].remove();
+    }
 
+  }
+}, 1800000)
 
 exports.user_register = (req, res, next) => {
-
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    const errors = result.array({ onlyFirstError: true });
+    return res.status(422).json({ errors });
+  }
   User.findOne({ phone: req.body.phone }, (err, user) => {
     // If no document is found, user is null
     if (user) {
@@ -22,12 +50,12 @@ exports.user_register = (req, res, next) => {
           const userFields = {};
           userFields.phone = req.body.phone;
           userFields.password = hash;
-          userFields.budget = 20;
+          userFields.budget = 0;
           userFields.email = '';
           userFields.recommendationCode = parseInt(Math.random() * 1000000);
           User.findById(req.body.recommendationCode, (err, referer) => {
             if (!err && referer) {
-              userFields.refer1 = referer._id;
+              userFields.refer1 = referer.id;
               if (referer.refer1)
                 userFields.refer2 = referer.refer1;
             }
@@ -38,7 +66,7 @@ exports.user_register = (req, res, next) => {
               "cache-control": "no-cache",
               authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
             });
-            // ////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////
             request.form({
               "sender_id": "FSTSMS",
               "language": "english",
@@ -59,22 +87,6 @@ exports.user_register = (req, res, next) => {
                 new User(userFields)
                   .save()
                   .then((user) => {
-                    if (referer) {
-                      // console.log(referer);
-                      var tmp = referer.refered1;
-                      tmp = tmp.concat([user._id]);
-                      referer.refered1 = tmp;
-                      referer.save();
-                      User.findById(user.refer2, (err, referer2) => {
-                        if (!err && referer2) {
-                          var tmp = referer2.refered2;
-                          tmp = tmp.concat([user._id]);
-                          referer2.refered2 = tmp;
-                          referer2.save();
-                        }
-                      });
-                    }
-
                     return res.status(200).json({ messgae: 'ok' });
                   })
                   .catch((err) => {
@@ -125,7 +137,7 @@ exports.user_phone = (req, res, next) => {
 
     request.end(function (res1) {
       if (res1.error) {
-        // console.log(res1.raw_body);
+        console.log(res1.raw_body);
         return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
       } else {
         user.otp = OTP;
@@ -233,41 +245,57 @@ exports.user_phone_change = (req, res, next) => {
 
 };
 
-exports.user_verify = (req, res, next) => {
+exports.user_verify = async (req, res, next) => {
   // console.log("verify works----");
   //find the user first
-
-  User.findOne({ phone: req.body.phone }, (err, user) => {
-    if (!user || err) return res.status(400).json({ error: "something went wrong!" });
-    //start verify
-    var now = (new Date()).getTime();
-    if (now - parseInt(user.updatedAt) > 120000)
-      return res.status(400).json({ error: "time out!" });
-    if (user.otp == req.body.otp) {
-      user.updatedAt = 0;
-      user.otp = '';
-      user.phone_verified = true;
-      user.save((err) => {
-        const token = jwt.sign(
-          {
-            phone: user.phone,
-            _id: user._id
-
-          },
-          process.env.AUTH_SECRET,
-          {
-            expiresIn: "1h",
-          }
-        );
-        userToken = "Bearer " + token;
-        //no need to send hashed password to the frontend
-        user.password = "";
-        return res.status(200).json({ user, userToken });
-      });
-    } else {
-      return res.status(400).json({ error: "otp failed!" });
+  const user = await User.findOne({ phone: req.body.phone });
+  if (!user) return res.status(400).json({ error: "something went wrong!" });
+  //start verify
+  var now = (new Date()).getTime();
+  if (now - parseInt(user.updatedAt) > 300000) {
+    return res.status(400).json({ error: "time out!" });
+  }
+  if (user.otp == req.body.otp) {
+    const referer = await User.findById(user.refer1);
+    if (referer) {
+      var tmp = referer.refered1;
+      if (!tmp.find(ele => ele == user.id)) {
+        tmp = tmp.concat([user._id]);
+        referer.refered1 = tmp;
+        referer.save();
+      }
+      const referer2 = await User.findById(user.refer2);
+      if (referer2) {
+        tmp = referer2.refered2;
+        if (!tmp.find(ele => ele == user.id)) {
+          tmp = tmp.concat([user.id]);
+          referer2.refered2 = tmp;
+          referer2.save();
+        }
+      }
     }
-  });
+    user.updatedAt = 0;
+    user.otp = '';
+    user.phone_verified = true;
+    await user.save();
+    const token = jwt.sign(
+      {
+        phone: user.phone,
+        _id: user._id
+
+      },
+      process.env.AUTH_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+    userToken = "Bearer " + token;
+    //no need to send hashed password to the frontend
+    user.password = "";
+    return res.status(200).json({ user, userToken });
+  } else {
+    return res.status(400).json({ error: "otp failed!" });
+  }
 };
 exports.user_login = (req, res, next) => {
   // console.log("login works, ->", req.body.phone);
@@ -448,8 +476,8 @@ exports.getUser = async (req, res, next) => {
         user.refered2.push(tmp.phone);
       }
     }
-    const recharges = await Recharge.find({ user: req.params.id});
-    const withdrawals = await Withdrawl.find({ user: req.params.id});
+    const recharges = await Recharge.find({ user: req.params.id });
+    const withdrawals = await Withdrawl.find({ user: req.params.id });
     const rewards = await Reward.find({ userphone: user.phone });
     const enjoys = await MyEnjoy.find({ user: req.params.id });
     return res.status(200).json({ user, recharges, withdrawals, rewards, enjoys });
@@ -502,7 +530,7 @@ exports.addUser = async (req, res, next) => {
     tmp.admin = true;
     tmp.superAdmin = false;
   }
-  tmp.phone_verified=true;
+  tmp.phone_verified = true;
   const user = await (new User(tmp)).save();
   try {
     const referrer1 = await User.findById(req.body.referral);
@@ -515,13 +543,13 @@ exports.addUser = async (req, res, next) => {
     const user = await (new User(tmp)).save();
     if (referrer1) {
       tmp = referrer1.refered1;
-      tmp = tmp.concat([user._id]);
+      tmp = tmp.concat([user.id]);
       referrer1.refered1 = tmp;
       referrer1.save();
       if (user.refer2) {
         const referrer2 = await User.findById(user.refer2);
         tmp = referrer2.refered2;
-        tmp = tmp.concat([user._id]);
+        tmp = tmp.concat([user.id]);
         referrer2.refered2 = tmp;
         referrer2.save();
       }
@@ -535,7 +563,46 @@ exports.addUser = async (req, res, next) => {
 
 exports.patchBalance = async (req, res, next) => {
   const user = await User.findById(req.params.id);
-  user.budget=req.body.balance;
+  user.budget = req.body.balance;
   await user.save();
   return res.status(200).json(user);
 };
+
+exports.validateUser = [
+  // body('g-recaptcha-response')
+  //   .exists()
+  //   .withMessage('Please select captcha')
+
+  //   .notEmpty()
+  //   .withMessage('Please select captcha'),
+  body('password')
+    .exists()
+    .trim()
+    .withMessage('is required')
+
+    .notEmpty()
+    .withMessage('cannot be blank')
+
+    .isLength({ min: 6 })
+    .withMessage('must be at least 6 characters long')
+
+    .isLength({ max: 50 })
+    .withMessage('must be at most 50 characters long'),
+  body('recommendationCode')
+    .exists()
+    .trim()
+    .withMessage('is required'),
+
+  body('phone')
+    .exists()
+    .trim()
+    .withMessage('is required')
+
+    .notEmpty()
+    .withMessage('cannot be blank')
+
+    .matches(new RegExp('\\d{10}'))
+    .withMessage('wrong number')
+
+
+];

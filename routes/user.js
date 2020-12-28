@@ -14,7 +14,7 @@ const reward_controller = require('../controllers/reward');
  * @desc    Register new user
  * @access  Public
  */
-router.post("/signup", user_controller.user_register);
+router.post("/signup",user_controller.validateUser, user_controller.user_register);
 
 /**
  * @route   PUT /phone

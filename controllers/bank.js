@@ -45,15 +45,15 @@ exports.postWithdrawl = async (req, res, next) => {
     if (amount < 100)
         return res.status(400).json({ error: "Only more than 100 inr allowed" });
     var time = parseInt((new Date()).getTime());
-    // const old = await Withdrawl.find({ user: req.userFromToken._id }).sort('-createdAt');
-    // if (old.length !== 0) {
-    //     console.log(time);
-    //     console.log(parseInt((new Date(old[0].createdAt)).getTime()));
+    const old = await Withdrawl.find({ user: req.userFromToken._id }).sort('-createdAt');
+    if (old.length !== 0) {
+        console.log(time);
+        console.log(parseInt((new Date(old[0].createdAt)).getTime()));
 
-    //     if (time - parseInt((new Date(old[0].createdAt)).getTime()) < 3600000) {
-    //         return res.status(400).json({ error: "Withdraw is only allowed 1 time per hour!" });
-    //     }
-    // }
+        if (time - parseInt((new Date(old[0].createdAt)).getTime()) < 3600000*24) {
+            return res.status(400).json({ error: "Withdraw is only allowed 1 time a day!" });
+        }
+    }
     const user = await User.findById(req.userFromToken._id);
     const isMatch = await bcrypt.compare(req.body.password, user.password);
     if (isMatch) {
@@ -313,7 +313,7 @@ exports.getWithdrawlList = async (req, res, next) => {
 exports.getRechargeList = async (req, res, next) => {
     const page = req.params.page;
     const recharges = await Recharge.find({ user: req.userFromToken._id }).sort({ _id: -1 }).skip((page - 1) * 20).limit(20);
-    const total=await Recharge.countDocuments({user:req.userFromToken._id});
+    const total = await Recharge.countDocuments({ user: req.userFromToken._id });
     return res.status(200).json({ data: recharges, page, last_page: Math.ceil(total / 20) });
 
 
@@ -321,15 +321,18 @@ exports.getRechargeList = async (req, res, next) => {
 exports.postRecharge = async (req, res, next) => {
     // const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     // console.log(ip);
-
-    // console.log("amount=" + req.body.money);
-    if (req.body.money === "" || req.body.email === "") {
+    const amount=parseInt(req.body.money);
+    // console.log("amount=" + amount);
+    if (amount === "" || req.body.email === "") {
         return res.status(400).json({ error: "Please input correct money" });
+    }
+    if(amount<100 || amount>10000){
+        return res.status(400).json({ error: "Recharge allowed : ₹ 100~10000" });
     }
     const user = await User.findById(req.userFromToken._id)
     const comp = {};
     comp.user = req.userFromToken._id;
-    comp.order_amount = Math.abs(parseFloat(req.body.money));
+    comp.order_amount = Math.abs(parseFloat(amount));
     comp.pname = req.body.name;
     comp.pemail = req.body.email;
     comp.phone = req.body.phone;
@@ -441,18 +444,18 @@ exports.postNotifyRecharge = async (req, res, next) => {
             // console.log('Succeed');
             const recharge = new Recharge();
             recharge.user = recharging.user;
-            recharge.phone = recharging.phone;            
+            recharge.phone = recharging.phone;
             recharge.money = req.body.pay_amount;
             recharge.status = 1;
             await recharge.save();
             const user = await User.findById(recharge.user);
-            if(user.recharged){
+            if (user.recharged) {
                 user.budget += parseInt(recharge.money);
-            }else{
-                user.budget += Math.floor(parseInt(recharge.money)*1.2);
-                user.recharged=true;
+            } else {
+                user.budget += Math.floor(parseInt(recharge.money) * 1.35);
+                user.recharged = true;
             }
-            
+
             await user.save();
             await recharging.remove();
             return res.json({});
@@ -472,14 +475,10 @@ exports.postNotifyRecharge = async (req, res, next) => {
     // });
 
 };
-exports.getBudget = (req, res, next) => {
+exports.getBudget = async (req, res, next) => {
+    var user = await User.findById(req.userFromToken._id);
 
-
-    (async () => {
-        var user = await User.findById(req.userFromToken._id);
-
-        return res.status(200).json({ budget: user.budget });
-    })();
+    return res.status(200).json({ budget: user.budget });
 
 
     // new Complaints(comp).save((err,user)=>{
