@@ -492,16 +492,16 @@ exports.getUser = async (req, res, next) => {
       user.refer2 = (await User.findById(user.refer2)).phone;
     user.refered1 = [];
     user.refered2 = [];
-    for (let i = 0; i < user.refered1.length; i++) {
-      const tmp = await User.findById(user.refered1[i]);
-      if (tmp) {
-        user.refered1.push(tmp.phone);
+    for (let i = 0; i < tmp.refered1.length; i++) {
+      const tmp1 = await User.findById(tmp.refered1[i]);
+      if (tmp1) {
+        user.refered1.push(tmp1.phone);
       }
     }
-    for (let i = 0; i < user.refered2.length; i++) {
-      const tmp = await User.findById(user.refered2[i]);
-      if (tmp) {
-        user.refered2.push(tmp.phone);
+    for (let i = 0; i < tmp.refered2.length; i++) {
+      const tmp1 = await User.findById(tmp.refered2[i]);
+      if (tmp1) {
+        user.refered2.push(tmp1.phone);
       }
     }
     const recharges = await Recharge.find({ user: req.params.id });
