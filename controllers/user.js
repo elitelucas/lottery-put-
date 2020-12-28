@@ -615,10 +615,7 @@ exports.validateUser = [
 
     .isLength({ max: 50 })
     .withMessage('must be at most 50 characters long'),
-  body('recommendationCode')
-    .exists()
-    .trim()
-    .withMessage('is required'),
+  
 
   body('phone')
     .exists()
@@ -628,7 +625,7 @@ exports.validateUser = [
     .notEmpty()
     .withMessage('cannot be blank')
 
-    .matches(new RegExp('\\d{10}'))
+    .matches(new RegExp(/^\d{10}$/))
     .withMessage('wrong number')
 
 
