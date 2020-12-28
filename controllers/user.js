@@ -28,29 +28,34 @@ setInterval(async () => {
     }
 
   }
-}, 1800000)
+}, 1800000);
 (async () => {
-  const users = await User.find({ phone_verified: false });
-  for (let i = 0; i < users.length; i++) {
-    let now = (new Date()).getTime();
-    if (!users[i].updatedAt || now - users[i].updatedAt > 310000) {
-      const referrer1 = await User.findById(users[i].refer1);
-      if (referrer1) {
-        const tmp = referrer1.refered1;
-        tmp.splice(tmp.findIndex(ele => ele == users[i].id), 1);
-        referrer1.refered1 = tmp;
-        await referrer1.save();
+  try{
+    const users = await User.find({ phone_verified: false });
+    for (let i = 0; i < users.length; i++) {
+      let now = (new Date()).getTime();
+      if (!users[i].updatedAt || now - users[i].updatedAt > 310000) {
+        const referrer1 = await User.findById(users[i].refer1);
+        if (referrer1) {
+          const tmp = referrer1.refered1;
+          tmp.splice(tmp.findIndex(ele => ele == users[i].id), 1);
+          referrer1.refered1 = tmp;
+          await referrer1.save();
+        }
+        const referrer2 = await User.findById(users[i].refer2);
+        if (referrer2) {
+          const tmp = referrer2.refered2;
+          tmp.splice(tmp.findIndex(ele => ele == users[i].id), 1);
+          referrer2.refered2 = tmp;
+          await referrer2.save();
+        }
+        await users[i].remove();
       }
-      const referrer2 = await User.findById(users[i].refer2);
-      if (referrer2) {
-        const tmp = referrer2.refered2;
-        tmp.splice(tmp.findIndex(ele => ele == users[i].id), 1);
-        referrer2.refered2 = tmp;
-        await referrer2.save();
-      }
-      await users[i].remove();
+  
     }
-
+  }
+  catch(err){
+    console.log(err);
   }
 })();
 exports.user_register = (req, res, next) => {
