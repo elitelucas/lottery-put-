@@ -5,7 +5,7 @@ var unirest = require("unirest");
 var request = unirest("POST", "https://www.fast2sms.com/dev/bulk");
 const jwtDecode = require('jwt-decode');
 const { body, validationResult } = require('express-validator');
-setTimeout(async () => {
+setInterval(async () => {
   const users = await User.find({ phone_verified: false });
   for (let i = 0; i < users.length; i++) {
     let now = (new Date()).getTime();
@@ -29,7 +29,30 @@ setTimeout(async () => {
 
   }
 }, 1800000)
+(async () => {
+  const users = await User.find({ phone_verified: false });
+  for (let i = 0; i < users.length; i++) {
+    let now = (new Date()).getTime();
+    if (!users[i].updatedAt || now - users[i].updatedAt > 310000) {
+      const referrer1 = await User.findById(users[i].refer1);
+      if (referrer1) {
+        const tmp = referrer1.refered1;
+        tmp.splice(tmp.findIndex(ele => ele == users[i].id), 1);
+        referrer1.refered1 = tmp;
+        await referrer1.save();
+      }
+      const referrer2 = await User.findById(users[i].refer2);
+      if (referrer2) {
+        const tmp = referrer2.refered2;
+        tmp.splice(tmp.findIndex(ele => ele == users[i].id), 1);
+        referrer2.refered2 = tmp;
+        await referrer2.save();
+      }
+      await users[i].remove();
+    }
 
+  }
+})();
 exports.user_register = (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
@@ -253,7 +276,6 @@ exports.user_verify = async (req, res, next) => {
   //start verify
   var now = (new Date()).getTime();
   if (now - parseInt(user.updatedAt) > 300000) {
-
     return res.status(400).json({ error: "time out!" });
   }
   if (user.otp == req.body.otp) {
@@ -261,7 +283,6 @@ exports.user_verify = async (req, res, next) => {
     if (referer) {
       var tmp = referer.refered1;
       if (!tmp.find(ele => ele == user.id)) {
-
         tmp = tmp.concat([user._id]);
         referer.refered1 = tmp;
         referer.save();
@@ -274,7 +295,6 @@ exports.user_verify = async (req, res, next) => {
           referer2.refered2 = tmp;
           referer2.save();
         }
-
       }
     }
     user.updatedAt = 0;
