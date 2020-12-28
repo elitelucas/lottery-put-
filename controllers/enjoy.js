@@ -45,7 +45,7 @@ var completing = async () => {
 	status = 1;
 	no++;
 	for (var k = 0; k < 4; k++) {
-		// console.log(auto);
+		console.log(auto);
 		if (auto == true) {
 			// console.log('sdfsdfsdfsssssssss');
 			var number_amounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -163,7 +163,7 @@ var completing = async () => {
 				myEnjoy.contract = bet[k][i][2][color];
 				myEnjoy.select = color;
 				myEnjoy.result = result[k] ? result[k] : 0;
-				if(!result[k]){
+				if(!result){
 					console.log("result error!!!!!!!!!!!!");
 					console.log(result);
 					console.log(k);
@@ -185,7 +185,7 @@ var completing = async () => {
 		const enjoy = {};
 		enjoy.joiner = bet_no[k];
 		enjoy.budget = budget;
-		if(!result[k]){
+		if(!result){
 			console.log('result error in enjoy');
 			console.log(result);
 			console.log(k);

@@ -42,8 +42,9 @@ exports.deleteBank = (req, res, next) => {
 
 exports.postWithdrawl = async (req, res, next) => {
     const amount = Math.abs(parseFloat(req.body.amount));
-    if (amount < 100)
-        return res.status(400).json({ error: "Only more than 100 inr allowed" });
+    if(amount<300 || amount>10000){
+        return res.status(400).json({ error: "Withdrawal allowed : ₹ 300~10000" });
+    }
     var time = parseInt((new Date()).getTime());
     const old = await Withdrawl.find({ user: req.userFromToken._id }).sort('-createdAt');
     if (old.length !== 0) {
@@ -324,7 +325,7 @@ exports.postRecharge = async (req, res, next) => {
     const amount=parseInt(req.body.money);
     // console.log("amount=" + amount);
     if (amount === "" || req.body.email === "") {
-        return res.status(400).json({ error: "Please input correct money" });
+        return res.status(400).json({ error: "Please input correct data" });
     }
     if(amount<100 || amount>10000){
         return res.status(400).json({ error: "Recharge allowed : ₹ 100~10000" });
