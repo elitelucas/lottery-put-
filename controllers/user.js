@@ -30,7 +30,7 @@ setInterval(async () => {
   }
 }, 1800000);
 (async () => {
-  try{
+  try {
     const users = await User.find({ phone_verified: false });
     for (let i = 0; i < users.length; i++) {
       let now = (new Date()).getTime();
@@ -51,10 +51,10 @@ setInterval(async () => {
         }
         await users[i].remove();
       }
-  
+
     }
   }
-  catch(err){
+  catch (err) {
     console.log(err);
   }
 })();
@@ -484,26 +484,11 @@ exports.getUsers = async (req, res, next) => {
 
 exports.getUser = async (req, res, next) => {
   try {
-    const tmp = await User.findById(req.params.id);
-    let user = tmp.toJSON();
-    if (user.refer1)
-      user.refer1 = (await User.findById(user.refer1)).phone;
-    if (user.refer2)
-      user.refer2 = (await User.findById(user.refer2)).phone;
-    user.refered1 = [];
-    user.refered2 = [];
-    for (let i = 0; i < tmp.refered1.length; i++) {
-      const tmp1 = await User.findById(tmp.refered1[i]);
-      if (tmp1) {
-        user.refered1.push(tmp1.phone);
-      }
-    }
-    for (let i = 0; i < tmp.refered2.length; i++) {
-      const tmp1 = await User.findById(tmp.refered2[i]);
-      if (tmp1) {
-        user.refered2.push(tmp1.phone);
-      }
-    }
+    const user = await User.findById(req.params.id) 
+    .populate('refer1')
+    .populate('refer2')
+    .populate('refered1')
+    .populate('refered2');    
     const recharges = await Recharge.find({ user: req.params.id });
     const withdrawals = await Withdrawl.find({ user: req.params.id });
     const rewards = await Reward.find({ userphone: user.phone });
@@ -511,11 +496,16 @@ exports.getUser = async (req, res, next) => {
     return res.status(200).json({ user, recharges, withdrawals, rewards, enjoys });
   } catch (err) {
     console.log(err);
+    return res.status(400).json({ message: "failed" });
   }
 
 };
 exports.putPointUp = async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id)
+  .populate('refer1')
+  .populate('refer2')
+  .populate('refered1')
+  .populate('refered2');
   if (user.admin) {
     user.superAdmin = true;
   } else {
@@ -523,10 +513,15 @@ exports.putPointUp = async (req, res, next) => {
     user.superAdmin = false;
   }
   await user.save();
+  
   return res.status(200).json(user);
 };
 exports.putPointDown = async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id)
+  .populate('refer1')
+  .populate('refer2')
+  .populate('refered1')
+  .populate('refered2');
   if (user.superAdmin) {
     user.superAdmin = false;
     user.admin = true;
@@ -590,7 +585,11 @@ exports.addUser = async (req, res, next) => {
 };
 
 exports.patchBalance = async (req, res, next) => {
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(req.params.id)
+  .populate('refer1')
+  .populate('refer2')
+  .populate('refered1')
+  .populate('refered2');
   user.budget = req.body.balance;
   await user.save();
   return res.status(200).json(user);

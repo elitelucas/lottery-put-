@@ -162,7 +162,11 @@ var completing = async () => {
 				myEnjoy.period = log_time;
 				myEnjoy.contract = bet[k][i][2][color];
 				myEnjoy.select = color;
-				myEnjoy.result = result[k];
+				myEnjoy.result = result[k] ? result[k] : 0;
+				if(!result[k]){
+					console.log("result error!!!!!!!!!!!!");
+					console.log(result);
+				}
 				myEnjoy.amount = bet[k][i][3][color] - bet[k][i][2][color];
 				myEnjoy.user = bet[k][i][0];
 				myEnjoy.category = k;

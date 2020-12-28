@@ -115,22 +115,23 @@ exports.getApply =async (req, res, next) => {
 };
 exports.getRefered = async (req, res, next) => {
     if (req.params.level == '0') {
-        const user = await User.findById(req.userFromToken._id);
+        const user = await User.findById(req.userFromToken._id)
+        .populate('refered1');
         var referers = user.refered1;
 
         for (var i = 0; i < referers.length; i++) {
-            const ttt = await User.findById(referers[i]);
-            referers[i] = ttt.phone;
+            referers[i] = referers[i].phone;
         }
         // console.log(referers);
         return res.status(200).json({ data: referers });
 
     } else {
-        const user = await User.findById(req.userFromToken._id);
+        const user = await User.findById(req.userFromToken._id)
+        .populate('refered2');
         var referers = user.refered2;
+
         for (var i = 0; i < referers.length; i++) {
-            const ttt = await User.findById(referers[i]);
-            referers[i] = ttt.phone;
+            referers[i] = referers[i].phone;
         }
         // console.log(referers);
         return res.status(200).json({ data: referers });
