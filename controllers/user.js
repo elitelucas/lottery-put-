@@ -253,6 +253,7 @@ exports.user_verify = async (req, res, next) => {
   //start verify
   var now = (new Date()).getTime();
   if (now - parseInt(user.updatedAt) > 300000) {
+
     return res.status(400).json({ error: "time out!" });
   }
   if (user.otp == req.body.otp) {
@@ -260,6 +261,7 @@ exports.user_verify = async (req, res, next) => {
     if (referer) {
       var tmp = referer.refered1;
       if (!tmp.find(ele => ele == user.id)) {
+
         tmp = tmp.concat([user._id]);
         referer.refered1 = tmp;
         referer.save();
@@ -272,6 +274,7 @@ exports.user_verify = async (req, res, next) => {
           referer2.refered2 = tmp;
           referer2.save();
         }
+
       }
     }
     user.updatedAt = 0;
