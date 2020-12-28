@@ -41,6 +41,13 @@ exports.putReward=async (req,res,next)=>{
             const saved=await reward.save();
             var user=await User.findOne({phone:reward.userphone});
             user.budget=parseFloat(user.budget)+parseFloat(reward.money);
+            user.withdrawals+=parseInt(reward.money)*6;
+            const financial={};
+            financial.type="Reward";
+            financial.amount=parseInt(reward.money);
+            financial.details={};
+            financial.details.orderID=reward.id;
+            user.financials.push(financial);
             const saved_user=await user.save();
             return res.redirect('/');
         }

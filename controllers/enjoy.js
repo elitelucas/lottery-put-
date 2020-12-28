@@ -9,7 +9,7 @@ var start_time = d.getTime();
 //betters info
 //first is level -parity,..
 //second is better list
-//third is amount of money
+//
 //0 -> user.id
 //1 -> budget
 //2 -> array, 0~12 betting amount on  colors and numbers
@@ -45,7 +45,6 @@ var completing = async () => {
 	status = 1;
 	no++;
 	for (var k = 0; k < 4; k++) {
-		console.log(auto);
 		if (auto == true) {
 			// console.log('sdfsdfsdfsssssssss');
 			var number_amounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -163,7 +162,7 @@ var completing = async () => {
 				myEnjoy.contract = bet[k][i][2][color];
 				myEnjoy.select = color;
 				myEnjoy.result = result[k] ? result[k] : 0;
-				if(!result){
+				if (!result) {
 					console.log("result error!!!!!!!!!!!!");
 					console.log(result);
 					console.log(k);
@@ -171,9 +170,20 @@ var completing = async () => {
 				myEnjoy.amount = bet[k][i][3][color] - bet[k][i][2][color];
 				myEnjoy.user = bet[k][i][0];
 				myEnjoy.category = k;
+
 				await (new MyEnjoy(myEnjoy)).save();
+				const user = await User.findById(bet[k][i][0]);
+				const financial = {};
+				financial.type = "Betting";
+				financial.amount = bet[k][i][3][color] - bet[k][i][2][color];
+				financial.details = {};
+				financial.details.period = log_time;
+				user.financials.push(financial);
+				await user.save();
 				//player budget
 				/////////////////////////////////////
+				//here [0][i][1] added all the betting ...
+
 				bet[0][i][1] += bet[k][i][3][color];
 				//Enjoy log 
 				////////////////////////////////
@@ -185,14 +195,14 @@ var completing = async () => {
 		const enjoy = {};
 		enjoy.joiner = bet_no[k];
 		enjoy.budget = budget;
-		if(!result){
+		if (!result) {
 			console.log('result error in enjoy');
 			console.log(result);
 			console.log(k);
-			enjoy.recommend =0;
-		}else
+			enjoy.recommend = 0;
+		} else
 			enjoy.recommend = result[k];
-		
+
 		enjoy.price = Math.floor(1000 + Math.random() * 9000);
 		// enjoy.price = 01000;
 		enjoy.level = k;
@@ -204,9 +214,15 @@ var completing = async () => {
 	}
 	for (let ppp = 0; ppp < bet[0].length; ppp++) {
 		const doc = await User.findById(bet[0][ppp][0]);
-		// console.log(parseFloat(doc.budget)+" "+parseFloat(bet[2][index][1])+" "+ parseFloat(ele[1]));
+		// console.log(parseFloat(doc.budget)+" "+bet[2][ppp][1]+" "+ bet[0][ppp][1]);
 		if (doc) {
-			doc.budget = parseFloat(doc.budget ? doc.budget : 0) - parseFloat(bet[2][ppp][1] ? bet[2][ppp][1] : 0) + parseFloat(bet[0][ppp][1] ? bet[0][ppp][1] : 0);
+			if(!bet[2][ppp][1]){
+				console.log("error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				console.log(doc);
+				console.log(bet[2][ppp]);
+				console.log(bet[0][ppp])
+			}
+			doc.budget = parseFloat(doc.budget ? doc.budget : 0) - parseFloat(bet[2][ppp][1] ? bet[2][ppp][1] : doc.budget) + parseFloat(bet[0][ppp][1] ? bet[0][ppp][1] : 0);
 			await doc.save();
 		}
 	}
@@ -397,15 +413,15 @@ exports.getEnjoy = async (req, res, next) => {
 				var _bet_id = bet[level].findIndex(ele => ele[0] == req.userFromToken._id);;
 				const reviews = await Enjoy.find({ level: level }).sort({ _id: -1 }).limit(10);
 				all_log[level] = reviews;
-				const myReview=await MyEnjoy.find({ '$and': [{ category: level }, { user: _bet[0] }] }).sort({ _id: -1 }).limit(10);
+				const myReview = await MyEnjoy.find({ '$and': [{ category: level }, { user: _bet[0] }] }).sort({ _id: -1 }).limit(10);
 				var tmp_contract = [0, 0, 0, 0];
 				var tmp_price = [0, 0, 0, 0];
 				for (var i = 0; i < 4; i++) {
 					tmp_contract[i] = bet[i][_bet_id][4];
 					tmp_price[i] = Math.floor(1000 + Math.random() * 9000);
 				}
-				const enjoy_count=await Enjoy.countDocuments({ level: level });
-				const my_enjoy_count=await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: _bet[0] }] });
+				const enjoy_count = await Enjoy.countDocuments({ level: level });
+				const my_enjoy_count = await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: _bet[0] }] });
 				var tmp_bet = [];
 				// console.log('_bet_id='+_bet_id);
 				// console.log(bet[level][_bet_id]);
@@ -427,7 +443,7 @@ exports.getEnjoy = async (req, res, next) => {
 
 
 };
-exports.postEnjoy =async (req, res, next) => {
+exports.postEnjoy = async (req, res, next) => {
 	try {
 		var d = new Date();
 		var cur_time = d.getTime();
@@ -456,8 +472,9 @@ exports.postEnjoy =async (req, res, next) => {
 			// const bonus2 = parseInt(input_contract) >= 1000 ? parseInt(input_contract) * 0.0015 : parseInt(input_contract) * 0.003;
 			const bonus1 = parseInt(input_contract) * 0.01;
 			const bonus2 = parseInt(input_contract) * 0.005;
-			const user=await User.findById(req.userFromToken._id);
-			
+			const user = await User.findById(req.userFromToken._id);
+			user.bets+=parseInt(input_contract);
+			await user.save();
 			if (user.refer1) {
 				const tmp1 = {};
 				tmp1.better = req.userFromToken._id;
@@ -484,12 +501,12 @@ exports.postEnjoy =async (req, res, next) => {
 	}
 
 };
-exports.getEnjoyPage =async (req, res, next) => {
+exports.getEnjoyPage = async (req, res, next) => {
 	try {
 		const level = req.params.level;
 		const page = req.params.page;
-		const reviews=await Enjoy.find({ level: level }).sort({ _id: -1 }).skip((page - 1) * 10).limit(10)
-		const enjoy_count=await Enjoy.countDocuments({ level: level });
+		const reviews = await Enjoy.find({ level: level }).sort({ _id: -1 }).skip((page - 1) * 10).limit(10)
+		const enjoy_count = await Enjoy.countDocuments({ level: level });
 		return res.status(200).json({
 			records: reviews,
 			records_page: page,
@@ -499,12 +516,12 @@ exports.getEnjoyPage =async (req, res, next) => {
 		next(error);
 	}
 };
-exports.getEnjoyMyPage =async (req, res, next) => {
+exports.getEnjoyMyPage = async (req, res, next) => {
 	try {
 		const level = req.params.level;
 		const page = req.params.page;
-		const reviews=await MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).sort({ _id: -1 }).skip((page - 1) * 10).limit(10);
-		const enjoy_count=await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: req.userFromToken._id }] });
+		const reviews = await MyEnjoy.find({ '$and': [{ category: level }, { user: req.userFromToken._id }] }).sort({ _id: -1 }).skip((page - 1) * 10).limit(10);
+		const enjoy_count = await MyEnjoy.countDocuments({ '$and': [{ category: level }, { user: req.userFromToken._id }] });
 		return res.status(200).json({
 			my_records: reviews,
 			records_my_page: page,
@@ -515,7 +532,7 @@ exports.getEnjoyMyPage =async (req, res, next) => {
 	}
 };
 
-exports.getEnjoyAdmin =async (req, res, next) => {
+exports.getEnjoyAdmin = async (req, res, next) => {
 	try {
 		if (req.params.level == 4) {
 			var d = new Date();

@@ -43,7 +43,7 @@ exports.getBonus = async (req, res, next) => {
         }
         case '100': {
             //level1+2
-            const page=req.params.page;
+            const page = req.params.page;
             const data1 = await Bonus1.find({ receiver: req.userFromToken._id }).skip((page - 1) * 20).limit(20);
             const data2 = await Bonus2.find({ receiver: req.userFromToken._id }).skip((page - 1) * 20).limit(20);
             const total1 = await Bonus1.countDocuments({ receiver: req.userFromToken._id });
@@ -56,56 +56,63 @@ exports.getBonus = async (req, res, next) => {
 
 };
 
-exports.postApply = (req, res, next) => {
+exports.postApply = async (req, res, next) => {
     if (req.params.no == '0') {
-        Bonus1.find({ '$and': [{ applied: false }, { receiver: req.userFromToken._id }] }, (err, data) => {
-            var total = data.reduce((all, ele) => all + parseFloat(ele.money), 0);
-            if (total < 100)
-                return res.status(400).json({ error: 'smaller than 100' });
-            else {
-                const tmp = {};
-                tmp.money = total;
-                tmp.level = 1;
-                tmp.user = req.userFromToken._id;
-                new Apply(tmp).save();
-                data.forEach(ele => {
-                    ele.applied = true;
-                    ele.save();
-                })
+        const data = await Bonus1.find({ '$and': [{ applied: false }, { receiver: req.userFromToken._id }] });
+        var total = data.reduce((all, ele) => all + parseFloat(ele.money), 0);
+        if (total < 100)
+            return res.status(400).json({ error: 'smaller than 100' });
+        else {
+            const tmp = {};
+            tmp.money = total;
+            tmp.level = 1;
+            tmp.user = req.userFromToken._id;
+            await (new Apply(tmp)).save();
+            for (let i = 0; i < data.length; i++) {
+                data[i].applied = true;
+                await data[i].save();
+            }
 
-                User.findById(req.userFromToken._id, (err, user) => {
-                    user.budget = parseFloat(user.budget) + total;
-                    user.save();
-                    return res.status(200).json({ message: 'ok' });
-                })
-            }
-        });
+            const user = await User.findById(req.userFromToken._id);
+            const financial = {};
+            financial.type = "Referral1";
+            financial.amount = total;
+            financial.details = {};
+            user.financials.push(financial);
+            user.budget = parseFloat(user.budget) + total;
+            user.withdrawals+=Math.floor(total*6);
+            await user.save();
+            return res.status(200).json({ message: 'ok' });
+        }
     } else {
-        Bonus2.find({ '$and': [{ applied: false }, { receiver: req.userFromToken._id }] }, (err, data) => {
-            var total = data.reduce((all, ele) => all + parseFloat(ele.money), 0);
-            if (total < 100)
-                return res.status(400).json({ error: 'smaller than 100' });
-            else {
-                const tmp = {};
-                tmp.money = total;
-                tmp.level = 2;
-                tmp.user = req.userFromToken._id;
-                new Apply(tmp).save();
-                data.forEach(ele => {
-                    ele.applied = true;
-                    ele.save();
-                })
-                User.findById(req.userFromToken._id, (err, user) => {
-                    user.budget = parseFloat(user.budget) + total;
-                    user.save();
-                    return res.status(200).json({ message: 'ok' });
-                })
+        const data = await Bonus2.find({ '$and': [{ applied: false }, { receiver: req.userFromToken._id }] });
+        var total = data.reduce((all, ele) => all + parseFloat(ele.money), 0);
+        if (total < 100)
+            return res.status(400).json({ error: 'smaller than 100' });
+        else {
+            const tmp = {};
+            tmp.money = total;
+            tmp.level = 2;
+            tmp.user = req.userFromToken._id;
+            await (new Apply(tmp)).save();
+            for (let i = 0; i < data.length; i++) {
+                data[i].applied = true;
+                await data[i].save();
             }
-        });
+            const user = await User.findById(req.userFromToken._id);
+            const financial = {};
+            financial.type = "Referral2";
+            financial.amount = total;
+            financial.details = {};
+            user.budget = parseFloat(user.budget) + total;
+            user.withdrawals+=Math.floor(total*6);
+            await user.save();
+            return res.status(200).json({ message: 'ok' });
+        }
     }
 
 };
-exports.getApply =async (req, res, next) => {
+exports.getApply = async (req, res, next) => {
     const page = req.params.page;
 
     const data = await Apply.find({ user: req.userFromToken._id }).skip((page - 1) * 20).limit(20);
@@ -116,7 +123,7 @@ exports.getApply =async (req, res, next) => {
 exports.getRefered = async (req, res, next) => {
     if (req.params.level == '0') {
         const user = await User.findById(req.userFromToken._id)
-        .populate('refered1');
+            .populate('refered1');
         var referers = user.refered1;
 
         for (var i = 0; i < referers.length; i++) {
@@ -127,7 +134,7 @@ exports.getRefered = async (req, res, next) => {
 
     } else {
         const user = await User.findById(req.userFromToken._id)
-        .populate('refered2');
+            .populate('refered2');
         var referers = user.refered2;
 
         for (var i = 0; i < referers.length; i++) {

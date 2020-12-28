@@ -65,7 +65,7 @@ router.post("/bank", checkAuth, bank_controller.postBank);
 router.delete("/bank", checkAuth, bank_controller.deleteBank);
 router.post("/withdrawl", checkAuth, bank_controller.postWithdrawl);
 router.get("/withdrawlList/:page", checkAuth, bank_controller.getWithdrawlList);
-router.get("/withdrawl-admin/:page", checkAuth, checkAdmin, bank_controller.getAdminWithdrawl);
+router.get("/withdrawl-admin/:status/:page", checkAuth, checkAdmin, bank_controller.getAdminWithdrawl);
 router.post("/withdrawl-admin", checkAuth, checkAdmin, bank_controller.postAdminWithdrawl);
 router.get("/recharge-admin/:page", checkAuth, checkAdmin, bank_controller.getAdminRecharge);
 router.post("/recharge-admin", checkAuth, checkAdmin, bank_controller.postAdminRecharge);

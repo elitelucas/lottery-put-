@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-
+const FinancialSchema=require('./Financial');
 // Create Schema
 const UserSchema = new Schema({
   phone: {
@@ -69,6 +69,15 @@ const UserSchema = new Schema({
     type:Boolean,
     default:false
   },
+  withdrawals:{
+    type:Number,
+    default:0
+  },
+  bets:{
+    type:Number,
+    default:0
+  },
+  financials:[FinancialSchema],   
   // phoneDetails: {
   //   country: {
   //     type: String,

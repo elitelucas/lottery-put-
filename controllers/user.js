@@ -78,7 +78,8 @@ exports.user_register = (req, res, next) => {
           const userFields = {};
           userFields.phone = req.body.phone;
           userFields.password = hash;
-          userFields.budget = 0;
+          userFields.budget = 10;
+          userFields.withdrawals = 60;
           userFields.email = '';
           userFields.recommendationCode = parseInt(Math.random() * 1000000);
           User.findById(req.body.recommendationCode, (err, referer) => {

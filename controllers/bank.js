@@ -6,7 +6,6 @@ const Recharge = require("../models/Recharge");
 const Recharging = require("../models/Recharging");
 const unirest = require('unirest');
 var crypto = require('crypto');
-const Razorpay = require('razorpay');
 exports.postBank = (req, res, next) => {
 
     const comp = req.body;
@@ -45,17 +44,14 @@ exports.postWithdrawl = async (req, res, next) => {
     if(amount<300 || amount>10000){
         return res.status(400).json({ error: "Withdrawal allowed : ₹ 300~10000" });
     }
-    var time = parseInt((new Date()).getTime());
-    const old = await Withdrawl.find({ user: req.userFromToken._id }).sort('-createdAt');
-    if (old.length !== 0) {
-        console.log(time);
-        console.log(parseInt((new Date(old[0].createdAt)).getTime()));
-
-        if (time - parseInt((new Date(old[0].createdAt)).getTime()) < 3600000*24) {
-            return res.status(400).json({ error: "Withdraw is only allowed 1 time a day!" });
-        }
-    }
     const user = await User.findById(req.userFromToken._id);
+    if (user.withdrawals > user.bets) {
+        return res.status(400).json({
+            error: `Amount of bet = ₹ ${user.withdrawals} 
+        Valid bet = ₹ ${user.bets}
+        Pending bet= ₹ ${user.withdrawals - user.bets}`
+        });
+    }
     const isMatch = await bcrypt.compare(req.body.password, user.password);
     if (isMatch) {
         if (parseFloat(user.budget) < amount)
@@ -78,8 +74,14 @@ exports.postWithdrawl = async (req, res, next) => {
 
 exports.getAdminWithdrawl = async (req, res, next) => {
     const page = req.params.page;
-    const withdrawls = await Withdrawl.find({ status: '0' }).sort("-createdAt").skip((page - 1) * 20).limit(20);
-    const total = await Withdrawl.countDocuments({ status: '0' });
+    let withdrawls, total;
+    if(req.params.status==2){
+        withdrawls = await Withdrawl.find({}).sort("-createdAt").skip((page - 1) * 20).limit(20);
+        total = await Withdrawl.countDocuments({});
+    }else{
+        withdrawls = await Withdrawl.find({ status: req.params.status }).sort("-createdAt").skip((page - 1) * 20).limit(20);
+        total = await Withdrawl.countDocuments({ status: req.params.status });
+    }
     const res_data = [];
     for (var i = 0; i < withdrawls.length; i++) {
         try {
@@ -158,10 +160,17 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                         if (response.body.status.toLowerCase() == "success") {
                             withdrawl.status = 1;
                             const saved_w = await withdrawl.save();
+                            const financial={};
+                            financial.type="Withdrawal";
+                            financial.amount=-parseInt(withdrawl.order_amount);
+                            financial.details={};
+                            financial.details.orderID=withdrawl.id;
+                            user.financials.push(financial);
+                            await user.save();
                             return res.status(200).json({ message: 'ok' });
                         } else {
                             user.budget = parseFloat(user.budget) + parseFloat(withdrawl.order_amount);
-
+                                
                             withdrawl.status = -2;
                             await user.save();
                             const saved_w = await withdrawl.save();
@@ -188,11 +197,6 @@ exports.postAdminWithdrawl = async (req, res, next) => {
     }
 
 
-
-    // new Complaints(comp).save((err,user)=>{
-    //     console.log(err);
-    //     return res.status(200).json({message:"Send succesfully"});
-    // });
 
 };
 
@@ -452,11 +456,25 @@ exports.postNotifyRecharge = async (req, res, next) => {
             const user = await User.findById(recharge.user);
             if (user.recharged) {
                 user.budget += parseInt(recharge.money);
+                user.withdrawals+=parseInt(recharge.money)*6;
+                const financial={};
+                financial.type="Recharge";
+                financial.amount=parseInt(recharge.money);
+                financial.details={};
+                financial.details.orderID=recharge.id;
+                user.financials.push(financial);
             } else {
                 user.budget += Math.floor(parseInt(recharge.money) * 1.35);
+                user.withdrawals+=Math.floor(parseInt(recharge.money) * 1.35)*6;
                 user.recharged = true;
-            }
-
+                const financial={};
+                financial.type="Recharge";
+                financial.amount=Math.floor(parseInt(recharge.money) * 1.35);
+                financial.details={};
+                financial.details.orderID=recharge.id;
+                user.financials.push(financial);
+            }            
+            
             await user.save();
             await recharging.remove();
             return res.json({});
