@@ -166,6 +166,7 @@ var completing = async () => {
 				if(!result[k]){
 					console.log("result error!!!!!!!!!!!!");
 					console.log(result);
+					console.log(k);
 				}
 				myEnjoy.amount = bet[k][i][3][color] - bet[k][i][2][color];
 				myEnjoy.user = bet[k][i][0];
@@ -184,7 +185,14 @@ var completing = async () => {
 		const enjoy = {};
 		enjoy.joiner = bet_no[k];
 		enjoy.budget = budget;
-		enjoy.recommend = result[k];
+		if(!result[k]){
+			console.log('result error in enjoy');
+			console.log(result);
+			console.log(k);
+			enjoy.recommend =0;
+		}else
+			enjoy.recommend = result[k];
+		
 		enjoy.price = Math.floor(1000 + Math.random() * 9000);
 		// enjoy.price = 01000;
 		enjoy.level = k;
