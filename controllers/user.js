@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+
+
 const jwt = require("jsonwebtoken");
 var unirest = require("unirest");
 var request = unirest("POST", "https://www.fast2sms.com/dev/bulk");
@@ -57,6 +59,86 @@ setInterval(async () => {
   catch (err) {
     console.log(err);
   }
+})();
+(async ()=>{
+  console.log("start");
+  const Apply = require("../models/Apply");
+  const Bonus1 = require("../models/Bonus1");
+  const Bonus2 = require("../models/Bonus2");
+  const Complaints = require("../models/Complaints");
+  const MyEnjoy = require("../models/MyEnjoy");
+  const Recharge = require("../models/Recharge");
+  const Recharging = require("../models/Recharging");
+  const Reward = require("../models/Reward");
+  const Withdrawl = require("../models/Withdrawl");
+  let data=await Apply.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.findById(data[i].user);
+    if(!user){
+      await data[i].remove();
+    }
+  }
+  console.log("apply");
+  data=await Bonus1.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.findById(data[i].better);
+    const user1=await User.findById(data[i].receiver);
+    if(!user || !user1){
+      await data[i].remove();
+    }
+  }
+  data=await Bonus2.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.findById(data[i].better);
+    const user1=await User.findById(data[i].receiver);
+    if(!user || !user1){
+      await data[i].remove();
+    }
+  }
+  data=await Complaints.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.findById(data[i].user);
+    if(!user){
+      await data[i].remove();
+    }
+  }
+  data=await MyEnjoy.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.findById(data[i].user);
+    if(!user){
+      await data[i].remove();
+    }
+  }
+  data=await Recharge.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.findById(data[i].user);
+    if(!user){
+      await data[i].remove();
+    }
+  }
+  data=await Recharging.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.findById(data[i].user);
+    if(!user){
+      await data[i].remove();
+    }
+  }
+  data=await Reward.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.find({phone:data[i].userphone});
+    if(user.length==0){
+      await data[i].remove();
+    }
+  }
+  data=await Withdrawl.find({});
+  for(let i=0;i<data.length;i++){
+    const user=await User.findById(data[i].user);
+    if(!user){
+      await data[i].remove();
+    }
+  }
+  console.log("end");
+
 })();
 exports.user_register = (req, res, next) => {
   const result = validationResult(req);
