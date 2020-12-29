@@ -3,6 +3,7 @@ const Enjoy = require("../models/Enjoy");
 const Bonus1 = require("../models/Bonus1");
 const Bonus2 = require("../models/Bonus2");
 const MyEnjoy = require("../models/MyEnjoy");
+const { isFunction } = require("util");
 var status = 0;
 var d = new Date();
 var start_time = d.getTime();
@@ -230,9 +231,13 @@ var completing = async () => {
 	}
 };
 var betting = async () => {
-	setTimeout(completing, 150000);
+	setTimeout(completing, 150000);			
 	var d = new Date();
 	var d = d.getFullYear() + "" + (1 + parseInt(d.getMonth())) + d.getUTCDate();
+	if(old_d && old_d!==d){
+		no=1;
+	}
+	var old_d=d;
 	if (log_time === undefined) {
 		const docs = await Enjoy.find({ createdAt: { '$regex': d + ".*" } }).sort({ createdAt: -1 });
 		// console.log(err);
@@ -242,6 +247,7 @@ var betting = async () => {
 			no = 1;
 		}
 		else {
+			
 			const tmp_no = parseInt(docs[0].createdAt.substring(d.length));
 			if (tmp_no < 9)
 				log_time = d + "000" + (tmp_no + 1);
@@ -265,7 +271,7 @@ var betting = async () => {
 			}
 		}
 
-	} else {
+	} else {		
 		if (no < 10)
 			log_time = d + "000" + (no);
 		else if (no < 100)
