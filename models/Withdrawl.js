@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const WithdrawlSchema = new Schema({  
   user:{
     type: mongoose.ObjectId,
+	ref:'user',
     required:true,
     index:true
   },

@@ -508,3 +508,12 @@ exports.getBudget = async (req, res, next) => {
     // });
 
 };
+exports.getAdminWithdrawalDownload=async (req, res, next) => {
+    let withdrawls, total;
+    if(req.params.status==2){
+        withdrawls = await Withdrawl.find({}).sort("-createdAt").populate('user');
+    }else{
+        withdrawls = await Withdrawl.find({ status: req.params.status }).populate('user');
+    }
+    res.json(withdrawls);
+};
