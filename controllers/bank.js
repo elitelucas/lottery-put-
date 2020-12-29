@@ -108,7 +108,9 @@ exports.getAdminWithdrawl = async (req, res, next) => {
 exports.postAdminWithdrawl = async (req, res, next) => {
     var withdrawl = await Withdrawl.findById(req.body.id);
     var user = await User.findById(withdrawl.user);
-
+    if(withdrawl.status!=0){
+        return res.status(400).json({ message: 'Only waiting withdrawals can be controlled' });
+    }
     switch (req.body.status) {
         case -1: {
             //decline
