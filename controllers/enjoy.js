@@ -275,14 +275,15 @@ var betting = async () => {
 
 	} else {		
 		if (no < 10)
-			log_time = d + "000" + (no);
+			log_time = d + "0000" + (no);
 		else if (no < 100)
-			log_time = d + "00" + (no);
+			log_time = d + "000" + (no);
 		else if (no < 1000)
-			log_time = d + "0" + (no);
+			log_time = d + "00" + (no);
 		else if (no < 10000)
+			log_time = d + "0" + (no);
+		else if (no < 100000)
 			log_time = d + "" + (no);
-
 
 		for (var i = 0; i < 4; i++) {
 			status = 0;
