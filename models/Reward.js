@@ -12,7 +12,12 @@ const RewardSchema = new Schema({
     type:Number,
 	    required:true
   },
-
+  createdBy:{
+    type: mongoose.ObjectId,
+    required:true,
+    ref:'user',
+    index:true
+  },
   status:{
     type:Boolean,
     default:false

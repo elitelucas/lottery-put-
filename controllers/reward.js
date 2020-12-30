@@ -4,7 +4,7 @@ const Reward = require("../models/Reward");
 
 exports.listReward=(req,res,next)=>{
     const page=req.params.page;
-    Reward.find({}).sort({_id: -1})
+    Reward.find({}).populate('createdBy').sort({_id: -1})
     .skip((page-1)*10)
     .limit(10)
     .then(rewards => {
@@ -24,6 +24,7 @@ exports.createReward=(req,res,next)=>{
         const comp={};
         comp.money=req.body.money;
         comp.userphone=req.body.userphone;
+        comp.createdBy=req.userFromToken._id;
         var reward=new Reward(comp).save((err,data)=>{
             
             res.status(200).json({message:'ok'});
@@ -41,12 +42,12 @@ exports.putReward=async (req,res,next)=>{
             const saved=await reward.save();
             var user=await User.findOne({phone:reward.userphone});
             user.budget=parseFloat(user.budget)+parseFloat(reward.money);
-            user.withdrawals+=parseInt(reward.money)*6;
             const financial={};
             financial.type="Reward";
             financial.amount=parseInt(reward.money);
             financial.details={};
             financial.details.orderID=reward.id;
+            user.withdrawals+=parseInt(reward.money)*6;
             user.financials.push(financial);
             const saved_user=await user.save();
             return res.redirect('/');

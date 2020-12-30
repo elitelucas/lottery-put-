@@ -572,7 +572,7 @@ exports.getUser = async (req, res, next) => {
     .populate('refered2');    
     const recharges = await Recharge.find({ user: req.params.id });
     const withdrawals = await Withdrawl.find({ user: req.params.id });
-    const rewards = await Reward.find({ userphone: user.phone });
+    const rewards = await Reward.find({ userphone: user.phone }).populate('createdBy');
     const enjoys = await MyEnjoy.find({ user: req.params.id });
     return res.status(200).json({ user, recharges, withdrawals, rewards, enjoys });
   } catch (err) {
