@@ -9,13 +9,12 @@ module.exports =async (req, res, next) => {
       next();
     else{
       const user=await User.findById(req.userFromToken._id);
-      if(user.status)
         next();
-      else
-        return res.status(401).json("unauth");
+     
+        
     }    
   } catch (err) {
-    //console.log("unauth------ ", err);
+    console.log("unauth------ ", err);
     return res.status(401).json("unauth");
   }
 };
