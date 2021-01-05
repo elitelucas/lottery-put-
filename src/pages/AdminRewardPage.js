@@ -135,7 +135,7 @@ const AdminReward = (props) => {
           (list && list.length>0) ?
           list.map((ele,key)=>(
           <div className={'form-control'} key={key} style={{ marginBottom: '0rem',height:'100px'}}>
-            <span>https://www.elisonshop.net/api/reward/{ele._id}</span><br />
+            <span>https://www.luckyweb.shop/api/reward/{ele._id}</span><br />
             <span>₹ {ele.money} </span><br />
             <span>Phone : {ele.userphone}</span>
             {' '}&nbsp;
