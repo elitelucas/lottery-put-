@@ -50,6 +50,10 @@ const WithdrawlSchema = new Schema({
     type:Number,
     default:0,
     index:true
+  },
+  seen:{
+    type:Boolean,
+    default:false
   }
   
 });

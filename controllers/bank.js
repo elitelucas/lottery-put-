@@ -305,6 +305,7 @@ exports.postAdminRecharge = (req, res, next) => {
 
 exports.getWithdrawlList = async (req, res, next) => {
     const page = req.params.page;
+    await Withdrawl.updateMany({ user: req.userFromToken._id },{$set:{seen:true}});
     const withdrawls = await Withdrawl.find({ user: req.userFromToken._id }).sort({ _id: -1 }).skip((page - 1) * 20).limit(20);
     const total = await User.countDocuments({ user: req.userFromToken._id });
     return res.status(200).json({ data: withdrawls, page, last_page: Math.ceil(total / 20) });

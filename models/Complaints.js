@@ -13,6 +13,11 @@ const ComplaintsSchema = new Schema({
     index:true,
     default:false
   },
+  view_status:{
+    type:Boolean,
+    index:true,
+    default:false
+  },
   category:{
     type:String,
     required:true,

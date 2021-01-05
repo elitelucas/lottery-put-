@@ -6,6 +6,7 @@ const MyEnjoy = require("../models/MyEnjoy");
 const { isFunction } = require("util");
 var status = 0;
 var d = new Date();
+var old_d;
 var start_time = d.getTime();
 //betters info
 //first is level -parity,..
@@ -237,7 +238,7 @@ var betting = async () => {
 	if(old_d && old_d!==d){
 		no=1;
 	}
-	var old_d=d;
+	old_d=d;
 	if (log_time === undefined) {
 		const docs = await Enjoy.find({ createdAt: { '$regex': d + ".*" } }).sort({ createdAt: -1 });
 		// console.log(err);

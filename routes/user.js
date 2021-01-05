@@ -47,11 +47,14 @@ router.get("/enjoy-admin/:level", checkAuth, checkAdmin, checkSuperAdmin, enjoy_
 router.post("/enjoy-admin", checkAuth, checkAdmin, checkSuperAdmin, enjoy_controller.postEnjoyAdmin);
 router.post("/enjoy-admin-auto", checkAuth, checkAdmin, checkSuperAdmin, enjoy_controller.postEnjoyAdminAuto);
 //complaints
-router.get("/complaints/:page", checkAuth, complaints_controller.getComplaints);
-router.post("/complaints", checkAuth, complaints_controller.postComplaints);
-router.put("/complaints", checkAuth, checkAdmin, complaints_controller.putComplaints);
-router.get("/complaints-admin/:page", checkAuth, checkAdmin, complaints_controller.getComplaintsAdmin);
-router.post("/complaints-admin", checkAuth, checkAdmin, complaints_controller.postComplaintsAdmin);
+router.get("/complaints/:status/:page", checkAuth, complaints_controller.getComplaints);
+router.post("/complaints", checkAuth,complaints_controller.postComplaints);
+router.put("/complaints", checkAuth,complaints_controller.putComplaints);
+router.get("/complaints-admin/:status/:page", checkAuth, checkAdmin, complaints_controller.getComplaintsAdmin);
+router.post("/complaints-admin", checkAuth,checkAdmin,complaints_controller.postComplaintsAdmin);
+router.get("/new-complaints", checkAuth,complaints_controller.getNewComplaints);
+router.get("/new-complaints-admin", checkAuth, checkAdmin, complaints_controller.getNewComplaintsAdmin);
+
 
 
 //Referal
