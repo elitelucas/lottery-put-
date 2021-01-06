@@ -100,12 +100,13 @@ var completing = async () => {
 			}
 
 			if (top_profits_arr.length > 1) {
-				const index = Math.round(top_profits_arr.length * Math.random());
+				let index = Math.round(top_profits_arr.length * Math.random());
+				index = (index == top_profits_arr.length) ? 0 : index;
 				result[k] = top_profits_arr[index];
 			} else
 				result[k] = top_budget_num;
 		}
-
+		result[k] = result[k] ? result[k] : 0;
 		//each rooms -parity, sapre, ...
 		budget = 0;
 		for (var i = 0; i < bet_no[k]; i++) {
@@ -220,7 +221,7 @@ var completing = async () => {
 		const doc = await User.findById(bet[0][ppp][0]);
 		// console.log(parseFloat(doc.budget)+" "+bet[2][ppp][1]+" "+ bet[0][ppp][1]);
 		if (doc) {
-			if(!bet[2][ppp][1]){
+			if (!bet[2][ppp][1]) {
 				console.log("error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 				console.log(doc);
 				console.log(bet[2][ppp]);
@@ -232,13 +233,13 @@ var completing = async () => {
 	}
 };
 var betting = async () => {
-	setTimeout(completing, 150000);			
+	setTimeout(completing, 150000);
 	var d = new Date();
 	var d = d.getFullYear() + "" + (1 + parseInt(d.getMonth())) + d.getUTCDate();
-	if(old_d && old_d!==d){
-		no=1;
+	if (old_d && old_d !== d) {
+		no = 1;
 	}
-	old_d=d;
+	old_d = d;
 	if (log_time === undefined) {
 		const docs = await Enjoy.find({ createdAt: { '$regex': d + ".*" } }).sort({ createdAt: -1 });
 		// console.log(err);
@@ -248,7 +249,7 @@ var betting = async () => {
 			no = 1;
 		}
 		else {
-			
+
 			const tmp_no = parseInt(docs[0].createdAt.substring(d.length));
 			if (tmp_no < 9)
 				log_time = d + "0000" + (tmp_no + 1);
@@ -274,7 +275,7 @@ var betting = async () => {
 			}
 		}
 
-	} else {		
+	} else {
 		if (no < 10)
 			log_time = d + "0000" + (no);
 		else if (no < 100)
@@ -485,7 +486,7 @@ exports.postEnjoy = async (req, res, next) => {
 			const bonus1 = parseInt(input_contract) * 0.01;
 			const bonus2 = parseInt(input_contract) * 0.005;
 			const user = await User.findById(req.userFromToken._id);
-			user.bets+=parseInt(input_contract);
+			user.bets += parseInt(input_contract);
 			await user.save();
 			if (user.refer1) {
 				const tmp1 = {};
