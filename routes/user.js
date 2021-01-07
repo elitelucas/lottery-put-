@@ -9,6 +9,7 @@ const complaints_controller = require('../controllers/complaints');
 const bonus_controller = require('../controllers/bonus');
 const bank_controller = require('../controllers/bank');
 const reward_controller = require('../controllers/reward');
+const admin_controller = require('../controllers/admin');
 /**
  * @route   POST /register
  * @desc    Register new user
@@ -94,4 +95,12 @@ router.put("/pointDown/:id", checkAuth, checkAdmin, checkSuperAdmin, user_contro
 router.post("/balance/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.patchBalance);
 router.delete("/remove-user/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.removeUser);
 router.post("/add-user/", checkAuth, checkAdmin, checkSuperAdmin, user_controller.addUser);
+
+//admin panel - statistics
+router.get("/admin/total", checkAuth, checkAdmin, checkSuperAdmin, admin_controller.getTotal);
+router.get("/admin/revenues/:from/:to", checkAuth, checkAdmin, checkSuperAdmin, admin_controller.getRevenue);
+router.get("/admin/visits/:from/:to", checkAuth, checkAdmin, checkSuperAdmin, admin_controller.getVisit);
+router.get("/admin/rws/:from/:to", checkAuth, checkAdmin, checkSuperAdmin, admin_controller.getRWS);
+
+
 module.exports = router;

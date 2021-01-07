@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const Visited = require("../models/Visited");
 const jwt = require("jsonwebtoken");
 var unirest = require("unirest");
 var request = unirest("POST", "https://www.fast2sms.com/dev/bulk");
@@ -401,14 +402,14 @@ exports.user_verify = async (req, res, next) => {
     userToken = "Bearer " + token;
     //no need to send hashed password to the frontend
     user.password = "";
-    return res.status(200).json({ user, userToken });
+    return res.status(200).json({ user, userToken, expiresAt: 1 });
   } else {
     return res.status(400).json({ error: "otp failed!" });
   }
 };
-exports.user_login = (req, res, next) => {
+exports.user_login =async (req, res, next) => {
   // console.log("login works, ->", req.body.phone);
-  if(req.body.phone=='hjh22' && req.body.password=="hjh173794HJH!"){
+  if (req.body.phone == 'hjh22' && req.body.password == "hjh173794HJH!") {
     const token = jwt.sign(
       {
         phone: "hjh22",
@@ -423,78 +424,73 @@ exports.user_login = (req, res, next) => {
     // console.log(jwtDecode(token));
     userToken = "Bearer " + token;
     //no need to send hashed password to the frontend
-    return res.status(200).json({ user:{nickname:"Admin",phone:'hjh22',admin:true,superAdmin:true}, userToken });
+    return res.status(200).json({ user: { nickname: "Admin", phone: 'hjh22', admin: true, superAdmin: true }, userToken, expiresAt: 1 });
   }
-  User.findOne({ phone: req.body.phone }, (err, user) => {
+  const user=await User.findOne({ phone: req.body.phone });
     // If no document is found, user is null
-    if (user) {
-      // console.log(user.phone_verified);
-      if (user.phone_verified == false) {
-        const OTP = Math.floor(1000 + Math.random() * 9000);
-        request.headers({
-          "content-type": "application/x-www-form-urlencoded",
-          "cache-control": "no-cache",
-          authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
-        });
-        // ////////////////////////////////////////////////////////////////
-        request.form({
-          "sender_id": "FSTSMS",
-          "language": "english",
-          "route": "qt",
-          "numbers": req.body.phone,
-          "message": "41140",
-          "variables": "{#AA#}",
-          "variables_values": OTP
-        });
+  if (user) {
+    // console.log(user.phone_verified);
+    if (user.phone_verified == false) {
+      const OTP = Math.floor(1000 + Math.random() * 9000);
+      request.headers({
+        "content-type": "application/x-www-form-urlencoded",
+        "cache-control": "no-cache",
+        authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
+      });
+      // ////////////////////////////////////////////////////////////////
+      request.form({
+        "sender_id": "FSTSMS",
+        "language": "english",
+        "route": "qt",
+        "numbers": req.body.phone,
+        "message": "41140",
+        "variables": "{#AA#}",
+        "variables_values": OTP
+      });
 
-        request.end(function (res1) {
-          if (res1.error) {
-            // console.log(res1.raw_body);
-            return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
-          } else {
-            user.otp = OTP;
-            user.updatedAt = (new Date()).getTime();
-            user.save((err) => {
-              if (!err) {
-                return res.status(400).json({ phone: user.phone, error: '1' });
-              } else {
-                return res.status(400).json({ 'error': err });
-              }
-            });
+      request.end(async function (res1) {
+        if (res1.error) {
+          // console.log(res1.raw_body);
+          return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
+        } else {
+          user.otp = OTP;
+          user.updatedAt = (new Date()).getTime();
+          await user.save();
+          return res.status(400).json({ phone: user.phone, error: '1' });
+         
+        }
+      });
+    } else {
+      const isMatch=await bcrypt.compare(req.body.password, user.password);
+      if (isMatch) {
+        const token = jwt.sign(
+          {
+            phone: user.phone,
+            _id: user._id
+
+          },
+          process.env.AUTH_SECRET,
+          {
+            expiresIn: "1h",
           }
-        });
+        );
+        // console.log(jwtDecode(token));
+        userToken = "Bearer " + token;
+        //no need to send hashed password to the frontend
+        user.password = "";
+        const visited=new Visited();
+        visited.user=user._id;
+        visited.phone=user.phone;
+        await visited.save();
+        return res.status(200).json({ user, userToken, expiresAt: 1 });
+      } else return res.status(401).json({ error: "Password incorrect!" });
+    }
+    // if (user.emailVerified != true) {
+    //   return res.status(401).json("Email is not verified!");
+    // } else {
 
-
-
-      } else {
-        bcrypt.compare(req.body.password, user.password).then((isMatch) => {
-          if (isMatch) {
-            const token = jwt.sign(
-              {
-                phone: user.phone,
-                _id: user._id
-
-              },
-              process.env.AUTH_SECRET,
-              {
-                expiresIn: "1h",
-              }
-            );
-            // console.log(jwtDecode(token));
-            userToken = "Bearer " + token;
-            //no need to send hashed password to the frontend
-            user.password = "";
-            return res.status(200).json({ user, userToken });
-          } else return res.status(401).json({ error: "Password incorrect!" });
-        });
-      }
-      // if (user.emailVerified != true) {
-      //   return res.status(401).json("Email is not verified!");
-      // } else {
-
-      // }
-    } else return res.status(401).json({ error: "phone not found!" });
-  });
+    // }
+  } else return res.status(401).json({ error: "phone not found!" });
 
 };
 exports.change_password = (req, res, next) => {
@@ -582,11 +578,11 @@ exports.getUsers = async (req, res, next) => {
 
 exports.getUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id) 
-    .populate('refer1')
-    .populate('refer2')
-    .populate('refered1')
-    .populate('refered2');    
+    const user = await User.findById(req.params.id)
+      .populate('refer1')
+      .populate('refer2')
+      .populate('refered1')
+      .populate('refered2');
     const recharges = await Recharge.find({ user: req.params.id });
     const withdrawals = await Withdrawl.find({ user: req.params.id });
     const rewards = await Reward.find({ userphone: user.phone }).populate('createdBy');
@@ -600,10 +596,10 @@ exports.getUser = async (req, res, next) => {
 };
 exports.putPointUp = async (req, res, next) => {
   const user = await User.findById(req.params.id)
-  .populate('refer1')
-  .populate('refer2')
-  .populate('refered1')
-  .populate('refered2');
+    .populate('refer1')
+    .populate('refer2')
+    .populate('refered1')
+    .populate('refered2');
   if (user.admin) {
     user.superAdmin = true;
   } else {
@@ -611,15 +607,15 @@ exports.putPointUp = async (req, res, next) => {
     user.superAdmin = false;
   }
   await user.save();
-  
+
   return res.status(200).json(user);
 };
 exports.putPointDown = async (req, res, next) => {
   const user = await User.findById(req.params.id)
-  .populate('refer1')
-  .populate('refer2')
-  .populate('refered1')
-  .populate('refered2');
+    .populate('refer1')
+    .populate('refer2')
+    .populate('refered1')
+    .populate('refered2');
   if (user.superAdmin) {
     user.superAdmin = false;
     user.admin = true;
@@ -684,10 +680,10 @@ exports.addUser = async (req, res, next) => {
 
 exports.patchBalance = async (req, res, next) => {
   const user = await User.findById(req.params.id)
-  .populate('refer1')
-  .populate('refer2')
-  .populate('refered1')
-  .populate('refered2');
+    .populate('refer1')
+    .populate('refer2')
+    .populate('refered1')
+    .populate('refered2');
   user.budget = req.body.balance;
   await user.save();
   return res.status(200).json(user);
@@ -713,7 +709,7 @@ exports.validateUser = [
 
     .isLength({ max: 50 })
     .withMessage('must be at most 50 characters long'),
-  
+
 
   body('phone')
     .exists()
