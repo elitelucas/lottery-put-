@@ -88,7 +88,7 @@ router.delete("/reward/:id", checkAuth, checkAdmin, reward_controller.deleteRewa
 router.get("/reward/:id", reward_controller.putReward);
 
 //admin users
-router.get("/users/:page/:search?", checkAuth, checkAdmin, user_controller.getUsers);
+router.get("/users/:page?/:search?", checkAuth, checkAdmin, user_controller.getUsers);
 router.get("/user/:id", checkAuth, checkAdmin, user_controller.getUser);
 router.put("/pointUp/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.putPointUp);
 router.put("/pointDown/:id", checkAuth, checkAdmin, checkSuperAdmin, user_controller.putPointDown);

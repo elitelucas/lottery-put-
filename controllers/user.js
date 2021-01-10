@@ -564,7 +564,7 @@ exports.getUsers = async (req, res, next) => {
       page: page,
       last_page: Math.ceil(total / 20)
     });
-  } else {
+  } else if(page) {
     const users = await User.find({}).sort({ _id: -1 }).skip((page - 1) * 20).limit(20);
     const total = await User.countDocuments({});
 
@@ -573,6 +573,10 @@ exports.getUsers = async (req, res, next) => {
       page: page,
       last_page: Math.ceil(total / 20)
     });
+  }else{
+    const users = await User.find({});
+
+    return res.status(200).json(users);
   }
 };
 

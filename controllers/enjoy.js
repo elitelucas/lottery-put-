@@ -546,6 +546,12 @@ exports.getEnjoyMyPage = async (req, res, next) => {
 };
 
 exports.getEnjoyAdmin = async (req, res, next) => {
+	const tmp_bets=JSON.parse(JSON.stringify(bet));
+	for(let i=0;i<4;i++){
+		for(let k=0;k<tmp_bets[i].length;k++){
+			tmp_bets[i][k][0]=(await User.findById(tmp_bets[i][k][0])).phone;
+		}
+	}
 	try {
 		if (req.params.level == 4) {
 			var d = new Date();
@@ -553,7 +559,7 @@ exports.getEnjoyAdmin = async (req, res, next) => {
 			res.status(200).json({
 				log_time: log_time,
 				time: cur_time - start_time,
-				bet: bet,
+				bet: tmp_bets,
 				auto: auto,
 				'number': result
 			});
@@ -564,7 +570,7 @@ exports.getEnjoyAdmin = async (req, res, next) => {
 			res.status(200).json({
 				log_time: log_time,
 				time: cur_time - start_time,
-				bet: bet[level],
+				bet: tmp_bets[level],
 				auto: auto,
 				'number': result[level]
 			});
