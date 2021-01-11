@@ -241,63 +241,23 @@ exports.getAdminRecharge = async (req, res, next) => {
 
 };
 
-exports.postAdminRecharge = (req, res, next) => {
+exports.postAdminRecharge =async (req, res, next) => {
 
-
-    (async () => {
-        var recharge = await Recharge.findById(req.body.id);
-        var user = await User.findById(recharge.user);
-
-        // console.log("budget="+user.budget);
-        // console.log("withdraw="+recharge.money);
-        // console.log(req.body.status);
-        // console.log(req.body.status);
-        if (req.body.status == 1 && recharge.status != 1)
-            user.budget = parseFloat(user.budget) + parseFloat(recharge.money);
-        else if (req.body.status == -1 && recharge.status == 1)
-            user.budget = parseFloat(user.budget) - parseFloat(recharge.money);
-        recharge.status = req.body.status;
-
-        // console.log('user.budget= '+user.budget);
-        try {
-            const saved_w = await recharge.save();
-            const saved = await user.save();
-            // console.log('saved user.budget='+saved.budget);
-        } catch (ex) {
-            console.log(ex);
-        }
-
-
-        var recharges = await Recharge.find({}).sort("-createdAt");
-        const res_data = [];
-        for (var i = 0; i < recharges.length; i++) {
-            try {
-                const aa = await User.findById(recharges[i].user);
-                res_data[i] = {};
-                res_data[i]._id = recharges[i]._id;
-                res_data[i].status = recharges[i].status;
-                res_data[i].orderID = recharges[i].orderID;
-                res_data[i].createdAt = recharges[i].createdAt;
-                res_data[i].userId = aa._id;
-                res_data[i].userNickname = aa.nickname;
-                res_data[i].userPhone = aa.phone;
-                res_data[i].money = recharges[i].money;
-
-            } catch (ex) {
-                continue;
-            }
-
-        }
-
-        return res.status(200).json({ res_data });
-
-    })();
-
-
-    // new Complaints(comp).save((err,user)=>{
-    //     console.log(err);
-    //     return res.status(200).json({message:"Send succesfully"});
-    // });
+    var recharge = await Recharge.findById(req.body.id);
+    if (recharge.status == 1) {
+        return res.status(400).json({ message: 'failed' });
+    }
+    var user = await User.findById(recharge.user);
+    if (req.body.status == -1) {
+        await recharge.remove();
+        return res.status(200).json({ message: 'ok' });
+    }
+    if (req.body.status == 1 && recharge.status != 1)
+        user.budget = parseFloat(user.budget) + parseFloat(recharge.money);
+    recharge.status = req.body.status;
+    const saved_w = await recharge.save();
+    const saved = await user.save();
+    return res.status(200).json({ message: 'ok' });
 
 };
 

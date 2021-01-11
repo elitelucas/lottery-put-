@@ -63,10 +63,10 @@ exports.getComplaintsAdmin =async (req, res, next) => {
     let data,total;
 
     if(req.params.status==0){
-        data=await Complaints.find({status:false}).skip((page-1)*20).limit(20);
+        data=await Complaints.find({status:false}).populate('user').skip((page-1)*20).limit(20);
         total=await Complaints.countDocuments({status:false});
     }else{
-        data=await Complaints.find({status:true}).skip((page-1)*20).limit(20);
+        data=await Complaints.find({status:true}).populate('user').skip((page-1)*20).limit(20);
         total=await Complaints.countDocuments({status:true});
     }
 

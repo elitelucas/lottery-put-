@@ -6,6 +6,7 @@ const ComplaintsSchema = new Schema({
   user:{
     type: mongoose.ObjectId,
     required:true,
+	ref:'user',
     index:true
   },
   status:{
