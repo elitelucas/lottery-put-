@@ -9,6 +9,8 @@ import {
 } from 'react-icons/md';
 import PageSpinner from './PageSpinner';
 import {stateSetter} from './Service';
+import PhoneCode from 'react-phone-code';
+
 import { NOTIFICATION_SYSTEM_STYLE } from 'utils/constants';
 class AuthForm extends React.Component {
   constructor(props) {
@@ -26,7 +28,9 @@ class AuthForm extends React.Component {
       inProgress:false,
       agree:false,
       verify:'',
-      otpProgress:false
+      otpProgress:false,
+      country:''
+
     }
   componentWillUnmount() {
     this.setter.cancel();
@@ -156,7 +160,9 @@ sendOTP=()=>{
           "body": JSON.stringify({
             phone: this.state.phone,
             password: this.state.password,
-            recommendationCode:this.state.recommendationCode
+            recommendationCode:this.state.recommendationCode,
+            country:this.state.country
+
           })
         })
         .then(response =>{ 
@@ -380,6 +386,20 @@ sendOTP=()=>{
                 />
               </div>
             )}
+              {
+              this.isSignup && (
+                <FormGroup>
+                   <PhoneCode
+                      onSelect={country=>this.setter.setState({country})} // required
+                      showFirst={['TH', 'US']}
+                      defaultValue='select county'
+                    
+                      className='form-control'
+                      optionClassName='some option class name'
+                  />
+                </FormGroup>
+              )
+            }
             <FormGroup>
               <Input {...usernameInputProps} onChange={this.changePhone} value={this.state.phone} />
             </FormGroup>

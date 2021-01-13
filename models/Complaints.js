@@ -38,6 +38,10 @@ const ComplaintsSchema = new Schema({
     required:true,
     index:true
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
   reply:{
     type:String,
     index:true

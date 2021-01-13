@@ -3,6 +3,9 @@ const Schema = mongoose.Schema;
 const FinancialSchema=require('./Financial');
 // Create Schema
 const UserSchema = new Schema({
+  country:{
+    type:String
+  },
   phone: {
     type: String,
     required: true,

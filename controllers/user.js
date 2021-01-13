@@ -2,9 +2,13 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const Visited = require("../models/Visited");
 const jwt = require("jsonwebtoken");
-var unirest = require("unirest");
-var request = unirest("POST", "https://www.fast2sms.com/dev/bulk");
-const jwtDecode = require('jwt-decode');
+// var unirest = require("unirest");
+// var request = unirest("POST", "https://www.fast2sms.com/dev/bulk");
+// const jwtDecode = require('jwt-decode');
+var sinchApi = require('sinch-rest-api')({
+  key: process.env.SINCH_KEY,
+  secret: process.env.SINCH_SECRET
+});
 const { body, validationResult } = require('express-validator');
 setInterval(async () => {
   const users = await User.find({ phone_verified: false });
@@ -162,7 +166,7 @@ exports.user_register = (req, res, next) => {
           userFields.budget = 10;
           userFields.withdrawals = 60;
           userFields.email = '';
-          userFields.recommendationCode = parseInt(Math.random() * 1000000);
+          userFields.country = req.body.country;
           User.findById(req.body.recommendationCode, (err, referer) => {
             if (!err && referer) {
               userFields.refer1 = referer.id;
@@ -171,27 +175,8 @@ exports.user_register = (req, res, next) => {
             }
 
             const OTP = Math.floor(1000 + Math.random() * 9000);
-            request.headers({
-              "content-type": "application/x-www-form-urlencoded",
-              "cache-control": "no-cache",
-              authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
-            });
-            ////////////////////////////////////////////////////////////////
-            request.form({
-              "sender_id": "FSTSMS",
-              "language": "english",
-              "route": "qt",
-              "numbers": req.body.phone,
-              "message": "41140",
-              "variables": "{#AA#}",
-              "variables_values": OTP
-            });
-
-            request.end(function (res1) {
-              if (res1.error) {
-                // console.log(res1.raw_body);
-                return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
-              } else {
+            sinchApi.messaging.sendSms({ number: req.body.country + "" + req.body.phone, message: 'Your OTP is ' + OTP })
+              .then((err) => {
                 userFields.otp = OTP;
                 userFields.updatedAt = (new Date()).getTime();
                 new User(userFields)
@@ -201,13 +186,16 @@ exports.user_register = (req, res, next) => {
                   })
                   .catch((err) => {
                     return res.status(400).json({ 'error': err });
-                  });
-                ///////////////////////////////////////////////////////////////////////////////      
-              }
-            });
+                  });                ///////////////////////////////////////////////////////////////////////////////      
+
+              }).fail((err) => {
+                console.log("error");
+                console.log(err);
+                return res.status(400).json({ error: err.message });
+              });
 
 
-          })
+          });
 
 
         });
@@ -229,35 +217,16 @@ exports.user_phone = (req, res, next) => {
       return res.status(400).json({ "error": "Phone not found!" });
     }
     const OTP = Math.floor(1000 + Math.random() * 9000);
-    request.headers({
-      "content-type": "application/x-www-form-urlencoded",
-      "cache-control": "no-cache",
-      authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
-    });
-    // ////////////////////////////////////////////////////////////////
-    request.form({
-      "sender_id": "FSTSMS",
-      "language": "english",
-      "route": "qt",
-      "numbers": req.body.phone,
-      "message": "41140",
-      "variables": "{#AA#}",
-      "variables_values": OTP
-    });
-
-    request.end(function (res1) {
-      if (res1.error) {
-        console.log(res1.raw_body);
-        return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
-      } else {
+    sinchApi.messaging.sendSms({ number: user.country + '' + req.body.phone, message: 'Your OTP is ' + OTP })
+      .then(() => {
         user.otp = OTP;
         user.updatedAt = (new Date()).getTime();
         user.save((err) => {
           return res.status(200).json({ messgae: 'ok' });
         });
-      }
-    });
-
+      }).fail(err => {
+        return res.status(400).json({ error: err.message })
+      });
 
 
   });
@@ -272,27 +241,8 @@ exports.user_phone_change = (req, res, next) => {
         // If no document is found, user is null
         if (!user1) {
           const OTP = Math.floor(1000 + Math.random() * 9000);
-          request.headers({
-            "content-type": "application/x-www-form-urlencoded",
-            "cache-control": "no-cache",
-            authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
-          });
-          // ////////////////////////////////////////////////////////////////
-          request.form({
-            "sender_id": "FSTSMS",
-            "language": "english",
-            "route": "qt",
-            "numbers": req.body.phone,
-            "message": "41140",
-            "variables": "{#AA#}",
-            "variables_values": OTP
-          });
-
-          request.end(function (res1) {
-            if (res1.error) {
-              // console.log(res1.raw_body);
-              return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
-            } else {
+          sinchApi.messaging.sendSms({ number: user.country + '' + req.body.phone, message: 'Your OTP is ' + OTP })
+            .then(() => {
               user.phone = req.body.phone;
               user.otp = OTP;
               user.phone_verified = false;
@@ -300,8 +250,9 @@ exports.user_phone_change = (req, res, next) => {
               user.save((err) => {
                 return res.status(200).json({ messgae: 'ok' });
               });
-            }
-          });
+            }).fail(err => {
+              return res.status(400).json({ error: err.message })
+            });
 
 
         } else {
@@ -314,27 +265,8 @@ exports.user_phone_change = (req, res, next) => {
       });
     } else {
       const OTP = Math.floor(1000 + Math.random() * 9000);
-      request.headers({
-        "content-type": "application/x-www-form-urlencoded",
-        "cache-control": "no-cache",
-        authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
-      });
-      // ////////////////////////////////////////////////////////////////
-      request.form({
-        "sender_id": "FSTSMS",
-        "language": "english",
-        "route": "qt",
-        "numbers": req.body.phone,
-        "message": "41140",
-        "variables": "{#AA#}",
-        "variables_values": OTP
-      });
-
-      request.end(function (res1) {
-        if (res1.error) {
-          // console.log(res1.raw_body);
-          return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
-        } else {
+      sinchApi.messaging.sendSms({ number: user.country + '' + req.body.phone, message: 'Your OTP is ' + OTP })
+        .then(() => {
           user.otp = OTP;
           user.phone_verified = false;
           user.updatedAt = (new Date()).getTime();
@@ -342,8 +274,9 @@ exports.user_phone_change = (req, res, next) => {
             return res.status(200).json({ messgae: 'ok' });
           });
 
-        }
-      });
+        }).fail(err => {
+          return res.status(400).json({ error: err.message })
+        });
 
 
 
@@ -407,7 +340,7 @@ exports.user_verify = async (req, res, next) => {
     return res.status(400).json({ error: "otp failed!" });
   }
 };
-exports.user_login =async (req, res, next) => {
+exports.user_login = async (req, res, next) => {
   // console.log("login works, ->", req.body.phone);
   if (req.body.phone == 'hjh22' && req.body.password == "hjh173794HJH!") {
     const token = jwt.sign(
@@ -426,42 +359,24 @@ exports.user_login =async (req, res, next) => {
     //no need to send hashed password to the frontend
     return res.status(200).json({ user: { nickname: "Admin", phone: 'hjh22', admin: true, superAdmin: true }, userToken, expiresAt: 1 });
   }
-  const user=await User.findOne({ phone: req.body.phone });
-    // If no document is found, user is null
+  const user = await User.findOne({ phone: req.body.phone });
+  // If no document is found, user is null
   if (user) {
     // console.log(user.phone_verified);
     if (user.phone_verified == false) {
       const OTP = Math.floor(1000 + Math.random() * 9000);
-      request.headers({
-        "content-type": "application/x-www-form-urlencoded",
-        "cache-control": "no-cache",
-        authorization: "KQ108AmW3benCoU1OJyEZng141dWGq1r63bMps71P541PH9J97jiopv2bwAW"
-      });
-      // ////////////////////////////////////////////////////////////////
-      request.form({
-        "sender_id": "FSTSMS",
-        "language": "english",
-        "route": "qt",
-        "numbers": req.body.phone,
-        "message": "41140",
-        "variables": "{#AA#}",
-        "variables_values": OTP
-      });
-
-      request.end(async function (res1) {
-        if (res1.error) {
-          // console.log(res1.raw_body);
-          return res.status(400).json({ error: JSON.parse(res1.raw_body).message });
-        } else {
+      sinchApi.messaging.sendSms({ number: user.country + '' + req.body.phone, message: 'Your OTP is ' + OTP })
+        .then(async () => {
           user.otp = OTP;
           user.updatedAt = (new Date()).getTime();
           await user.save();
           return res.status(400).json({ phone: user.phone, error: '1' });
-         
-        }
-      });
+
+        }).fail(err => {
+          return res.status(400).json({ error: err.message })
+        });
     } else {
-      const isMatch=await bcrypt.compare(req.body.password, user.password);
+      const isMatch = await bcrypt.compare(req.body.password, user.password);
       if (isMatch) {
         const token = jwt.sign(
           {
@@ -478,9 +393,9 @@ exports.user_login =async (req, res, next) => {
         userToken = "Bearer " + token;
         //no need to send hashed password to the frontend
         user.password = "";
-        const visited=new Visited();
-        visited.user=user._id;
-        visited.phone=user.phone;
+        const visited = new Visited();
+        visited.user = user._id;
+        visited.phone = user.phone;
         await visited.save();
         return res.status(200).json({ user, userToken, expiresAt: 1 });
       } else return res.status(401).json({ error: "Password incorrect!" });
@@ -564,7 +479,7 @@ exports.getUsers = async (req, res, next) => {
       page: page,
       last_page: Math.ceil(total / 20)
     });
-  } else if(page) {
+  } else if (page) {
     const users = await User.find({}).sort({ _id: -1 }).skip((page - 1) * 20).limit(20);
     const total = await User.countDocuments({});
 
@@ -573,7 +488,7 @@ exports.getUsers = async (req, res, next) => {
       page: page,
       last_page: Math.ceil(total / 20)
     });
-  }else{
+  } else {
     const users = await User.find({});
 
     return res.status(200).json(users);

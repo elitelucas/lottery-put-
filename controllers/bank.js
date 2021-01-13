@@ -128,7 +128,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                 acc_name: withdrawl.acc_name,
                 acc_no: withdrawl.acc_no,
                 bank_code: withdrawl.bank_code,
-                ccy_no: "INR",
+                ccy_no: "THB",
                 mer_no: process.env.PAYMENT_NO,
                 mer_order_no: req.body.id,
                 order_amount: withdrawl.order_amount,
@@ -215,7 +215,6 @@ exports.getAdminRecharge = async (req, res, next) => {
             res_data[i] = {};
             res_data[i]._id = recharges[i]._id;
             res_data[i].status = recharges[i].status;
-            res_data[i].orderID = recharges[i].orderID;
             res_data[i].createdAt = recharges[i].createdAt;
             res_data[i].userId = aa._id;
             res_data[i].userNickname = aa.nickname;
@@ -315,8 +314,8 @@ exports.postRecharge = async (req, res, next) => {
     //         `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`).digest("hex");
     let body = {
         busi_code: data.busi_code,
-        ccy_no: "INR",
-        countryCode: "IND",
+        ccy_no: "THB",
+        countryCode: "THA",
 
         goods: "Make deposit",
         mer_no: process.env.PAYMENT_NO,
@@ -348,7 +347,8 @@ exports.postRecharge = async (req, res, next) => {
     data.sign = sign;
     await data.save();
     body = { ...body, sign };
-    // console.log(body);
+    console.log(body);
+    console.log(process.env.PAYMENT_DEPOSIT_URL)
     await unirest
         .post(process.env.PAYMENT_DEPOSIT_URL)
         .headers({ 'Accept': 'application/json', 'Content-Type': 'application/json' })
@@ -357,9 +357,12 @@ exports.postRecharge = async (req, res, next) => {
         .then(function (response) {
             if (response.body) {
                 console.log(response.body);
-                return res.status(200).json({ url: response.body.order_data });
+                if(response.body.status=='SUCCESS')
+                    return res.status(200).json({ url: response.body.order_data });
+                else
+                    return res.status(400).json({ error: "Failed"});
             } else {
-                return res.status(400).json({});
+                return res.status(400).json({ error: "Failed"});
             }
         });
 

@@ -26,7 +26,7 @@ const RechargePage = props => {
     JSON.parse(localStorage.getItem('auth')).user.phone,
   );
   const [name, setName] = useState('');
-  const [method, setMethod] = useState('UPI');
+  const [method, setMethod] = useState('KBANK');
   const [budget, setBudget] = useState(
     JSON.parse(localStorage.getItem('auth')).user.budget,
   );
@@ -43,7 +43,7 @@ const RechargePage = props => {
         method == ''
       )
         return;
-
+      console.log(method);
       const response = await fetch('/api/recharge', {
         method: 'POST',
         headers: {
@@ -54,7 +54,7 @@ const RechargePage = props => {
       });
       const data = await response.json();
       if (response.status == 200) {
-        window.location.href=data.url;
+        window.location.href = data.url;
         // f.submit();
       } else alert(data.error);
     })();
@@ -227,9 +227,37 @@ const RechargePage = props => {
         <Col xl={12} lg={12} md={12}>
           <FormGroup>
             <Label for="exampleSelect">Payment Method</Label>
-            <Input type="select" name="method" id="exampleSelect">
-             
-              <option value="UPI">UPIPay</option>
+            <Input type="select" name="method" id="exampleSelect" value={method} onChange={(e => setMethod(e.target.value))}>
+              <option value="KBANK">KASIKORNBANK PCL</option>
+              <option value="BBL">BANGKOK BANK PUBLIC COMPANY LTD.</option>
+              <option value="BAAC">BANK FOR AGRICULTURE AND AGRICULTURAL CO-OPERATIVES</option>
+              <option value="BOA">BANK OF AMERICA NT&SA</option>
+              <option value="BAY">BANK OF AYUDHAYA PUBLIC COMPANY LTD.</option>
+              <option value="BOC">Bank of China (Thai) PCL</option>
+              <option value="BNPP">BNP PARIBAS BANGKOK BRANCH</option>
+              <option value="CIMB">CIMB THAI BANK PUBLIC COMPANY LTD.</option>
+              <option value="CITI">CITI BANK N.A.</option>
+              <option value="DB">Deutsche Bank AG</option>
+              <option value="GHB">GOVERNMENT HOUSING BANK</option>
+              <option value="ICBC">INDUSTRIAL AND COMMERCIAL BANK OF CHINA (THAI) PCL</option>
+              <option value="TIBT">ISLAMIC BANK OF THAILAND</option>
+              <option value="CHAS">JPMorgan Chase Bank, Bangkok Branch</option>
+              <option value="KKB">KIATNAKIN BANK PCL</option>
+              <option value="KTB">KRUNG THAI BANK PUBLIC COMPANY LTD.</option>
+              <option value="LHBA">Land and Houses Bank</option>
+              <option value="MEGA">MEGA INTERNATIONAL COMMERCIAL BANK</option>
+              <option value="MHCB">MIZUHO CORPORATE BANK</option>
+              <option value="SCBT">STANDARD CHARTERED BANK THAI PCL.</option>
+              <option value="SMTB">Sumitomo Mitsui Trust Bank (Thai) PCL.</option>
+              <option value="TBNK">Thanachart Bank Public Company Limited</option>
+              <option value="GSB">THE GOVERNMENT SAVING BANK</option>
+              <option value="HSBC">THE HONGKONG & SHANGHAI CORPORATION LTD.</option>
+              <option value="SCB">THE SIAM COMMERCIAL BANK PUBLIC COMPANY</option>
+              <option value="SMBC">THE SUMITOMO MITSU BANKING CORPORATION</option>
+              <option value="TCRB">THE THAI CREDIT RETAIL BANK</option>
+              <option value="TISCO">TISCO Bank PCL</option>
+              <option value="TMB">TMB BANK PUBLIC COMPANY LTD.</option>
+              <option value="UOB">UNITED OVERSEAS BANK (THAI) PUBLIC COMPANY LTD.</option>
             </Input>
           </FormGroup>
         </Col>

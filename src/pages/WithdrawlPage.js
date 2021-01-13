@@ -20,7 +20,7 @@ const WithdrawlPage = (props) => {
   const [accNo, setAccNo] = useState("");
   const [province, setProvince] = useState("");
   const [accName, setAccName] = useState("");
-  const [bankCode, setBankCode] = useState("IDPT0001");
+  const [bankCode, setBankCode] = useState("KBANK");
   const apply = () => {
     console.log(JSON.stringify({ amount, password, bankCode, accName, accNo }));
     if (amount >= 100) {
@@ -90,31 +90,36 @@ const WithdrawlPage = (props) => {
           <InputGroup>
             <InputGroupAddon addonType="prepend"><span className="input-group-text">Bank Code</span></InputGroupAddon>
             <Input type="select" name="method" value={bankCode} onChange={(e) => setBankCode(e.target.value)}>
-              <option value="IDPT0001">Canara bank</option>
-              <option value="IDPT0002">DCB bank</option>
-              <option value="IDPT0003">Federal bank</option>
-              <option value="IDPT0004">HDFC bank</option>
-              <option value="IDPT0005">Punjab National bank</option>
-              <option value="IDPT0006">Indian bank</option>
-              <option value="IDPT0007">ICICI bank Industrial Credit Investment Bank
-of India</option>
-              <option value="IDPT0008">Syndicate bank</option>
-              <option value="IDPT0009">Karur vysya  bank</option>
-              <option value="IDPT0010">Union Bank of India</option>
-              <option value="IDPT0011">Kotak Mahindra bank</option>
-              <option value="IDPT0012">IDFC first bank</option>
-              <option value="IDPT0013">Andra bank</option>
-              <option value="IDPT0014">Karnataka bank</option>
-              <option value="IDPT0015">ICICI Corporate Bank (public account)</option>
-              <option value="IDPT0016">Axis bank</option>
-              <option value="IDPT0017">UCO bank</option>
-              <option value="IDPT0018">South Indian bank</option>
-              <option value="IDPT0019">Yes bank</option>
-              <option value="IDPT0020">Standard Chartered bank</option>
-              <option value="IDPT0021">State Bank of India</option>
-              <option value="IDPT0022">Indian overseas bank</option>
-              <option value="IDPT0023">Bandhan bank</option>
-              <option value="IDPT0024">Central Bank of India</option>
+            <option value="KBANK">KASIKORNBANK PCL</option>
+              <option value="BBL">BANGKOK BANK PUBLIC COMPANY LTD.</option>
+              <option value="BAAC">BANK FOR AGRICULTURE AND AGRICULTURAL CO-OPERATIVES</option>
+              <option value="BOA">BANK OF AMERICA NT&SA</option>
+              <option value="BAY">BANK OF AYUDHAYA PUBLIC COMPANY LTD.</option>
+              <option value="BOC">Bank of China (Thai) PCL</option>
+              <option value="BNPP">BNP PARIBAS BANGKOK BRANCH</option>
+              <option value="CIMB">CIMB THAI BANK PUBLIC COMPANY LTD.</option>
+              <option value="CITI">CITI BANK N.A.</option>
+              <option value="DB">Deutsche Bank AG</option>
+              <option value="GHB">GOVERNMENT HOUSING BANK</option>
+              <option value="ICBC">INDUSTRIAL AND COMMERCIAL BANK OF CHINA (THAI) PCL</option>
+              <option value="TIBT">ISLAMIC BANK OF THAILAND</option>
+              <option value="CHAS">JPMorgan Chase Bank, Bangkok Branch</option>
+              <option value="KKB">KIATNAKIN BANK PCL</option>
+              <option value="KTB">KRUNG THAI BANK PUBLIC COMPANY LTD.</option>
+              <option value="LHBA">Land and Houses Bank</option>
+              <option value="MEGA">MEGA INTERNATIONAL COMMERCIAL BANK</option>
+              <option value="MHCB">MIZUHO CORPORATE BANK</option>
+              <option value="SCBT">STANDARD CHARTERED BANK THAI PCL.</option>
+              <option value="SMTB">Sumitomo Mitsui Trust Bank (Thai) PCL.</option>
+              <option value="TBNK">Thanachart Bank Public Company Limited</option>
+              <option value="GSB">THE GOVERNMENT SAVING BANK</option>
+              <option value="HSBC">THE HONGKONG & SHANGHAI CORPORATION LTD.</option>
+              <option value="SCB">THE SIAM COMMERCIAL BANK PUBLIC COMPANY</option>
+              <option value="SMBC">THE SUMITOMO MITSU BANKING CORPORATION</option>
+              <option value="TCRB">THE THAI CREDIT RETAIL BANK</option>
+              <option value="TISCO">TISCO Bank PCL</option>
+              <option value="TMB">TMB BANK PUBLIC COMPANY LTD.</option>
+              <option value="UOB">UNITED OVERSEAS BANK (THAI) PUBLIC COMPANY LTD.</option>
             </Input>
           </InputGroup>
         </Col>
