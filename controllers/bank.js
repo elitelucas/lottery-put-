@@ -87,6 +87,7 @@ exports.getAdminWithdrawl = async (req, res, next) => {
         try {
             const aa = await User.findById(withdrawls[i].user);
             res_data[i] = {};
+            res_data[i].createdAt = withdrawls[i].createdAt;
             res_data[i]._id = withdrawls[i]._id;
             res_data[i].status = withdrawls[i].status;
             res_data[i].userId = aa._id;
