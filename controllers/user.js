@@ -185,12 +185,13 @@ exports.user_register = (req, res, next) => {
                     return res.status(200).json({ messgae: 'ok' });
                   })
                   .catch((err) => {
+                    console.log(err);
                     return res.status(400).json({ 'error': err });
                   });                ///////////////////////////////////////////////////////////////////////////////      
 
               }).fail((err) => {
-                console.log("error");
-                console.log(err);
+                console.log("dfgdsfg");
+                // console.log(err);
                 return res.status(400).json({ error: err.message });
               });
 
@@ -638,7 +639,7 @@ exports.validateUser = [
     .notEmpty()
     .withMessage('cannot be blank')
 
-    .matches(new RegExp(/^\d{10}$/))
+    .matches(new RegExp(/^\d{9,10}$/))
     .withMessage('wrong number')
 
 
