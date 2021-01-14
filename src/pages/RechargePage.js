@@ -28,6 +28,7 @@ const RechargePage = props => {
   const [accNo, setAccNo] = useState('');
   const [name, setName] = useState('');
   const [method, setMethod] = useState('KBANK');
+  const [methodType, setMethodType]=useState('100201');
   const [budget, setBudget] = useState(
     JSON.parse(localStorage.getItem('auth')).user.budget,
   );
@@ -44,14 +45,13 @@ const RechargePage = props => {
         method == ''
       )
         return;
-      console.log(method);
       const response = await fetch('/api/recharge', {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
           Authorization: JSON.parse(localStorage.getItem('auth')).userToken,
         },
-        body: JSON.stringify({ money, email, phone, name, method, accNo }),
+        body: JSON.stringify({ money, email, phone, name, method, accNo,methodType }),
       });
       const data = await response.json();
       if (response.status == 200) {
@@ -104,7 +104,7 @@ const RechargePage = props => {
     >
       <Row>
         <Col md={12} style={{ textAlign: 'center' }} className={'mt-3'}>
-          <h3>Balance: ฿ {budget}</h3>
+          <h3>Balance: $ {budget}</h3>
         </Col>
 
         {/* <Col xl={12} lg={12} md={12} style={{textAlign:'center'}}>
@@ -119,7 +119,7 @@ const RechargePage = props => {
         <Col xl={12} lg={12} md={12}>
           <InputGroup>
             <InputGroupAddon addonType="prepend">
-              <span className="input-group-text">฿</span>
+              <span className="input-group-text">$</span>
             </InputGroupAddon>
             <Input
               value={money}
@@ -138,9 +138,33 @@ const RechargePage = props => {
             color="primary"
             className={'ml-3 mr-3 mt-2'}
             style={{ width: '80px', padding: '4px 4px' }}
+            onClick={() => setMoney(50)}
+          >
+            $ 50
+          </Button>
+          <Button
+            color="primary"
+            className={'ml-3 mr-3 mt-2'}
+            style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(100)}
           >
-            ฿ 100
+            $ 100
+          </Button>
+          <Button
+            color="primary"
+            className={'ml-3 mr-3 mt-2'}
+            style={{ width: '80px', padding: '4px 4px' }}
+            onClick={() => setMoney(200)}
+          >
+            $ 200
+          </Button>
+          <Button
+            color="primary"
+            className={'ml-3 mr-3 mt-2'}
+            style={{ width: '80px', padding: '4px 4px' }}
+            onClick={() => setMoney(500)}
+          >
+            $ 500
           </Button>
           <Button
             color="primary"
@@ -148,7 +172,7 @@ const RechargePage = props => {
             style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(1000)}
           >
-            ฿ 1000
+            $ 1000
           </Button>
           <Button
             color="primary"
@@ -156,31 +180,7 @@ const RechargePage = props => {
             style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(2000)}
           >
-            ฿ 2000
-          </Button>
-          <Button
-            color="primary"
-            className={'ml-3 mr-3 mt-2'}
-            style={{ width: '80px', padding: '4px 4px' }}
-            onClick={() => setMoney(5000)}
-          >
-            ฿ 5000
-          </Button>
-          <Button
-            color="primary"
-            className={'ml-3 mr-3 mt-2'}
-            style={{ width: '80px', padding: '4px 4px' }}
-            onClick={() => setMoney(10000)}
-          >
-            ฿ 10000
-          </Button>
-          <Button
-            color="primary"
-            className={'ml-3 mr-3 mt-2'}
-            style={{ width: '80px', padding: '4px 4px' }}
-            onClick={() => setMoney(15000)}
-          >
-            ฿ 15000
+            $ 2000
           </Button>
         </Col>
         <Col xl={12} lg={12} md={12}>
@@ -227,18 +227,64 @@ const RechargePage = props => {
         </Col>
         <Col xl={12} lg={12} md={12}>
           <FormGroup>
-            <Label for="exampleSelect">Payment Method</Label>
-            <Input type="select" name="method" id="exampleSelect" value={method} onChange={(e => setMethod(e.target.value))}>
-              <option value="BAY">Bank of Ayudhya</option>
-              <option value="KTB">Krung Thai Bank</option>
-              <option value="KBANK">Kasikornbank</option>
-              <option value="BBL">BANGKOK BANK</option>
-
-
-
+            <Label for="exampleSelect1">Payment Method</Label>
+            <Input type="select" name="methodType" id="exampleSelect1" value={methodType} onChange={(e => setMethodType(e.target.value))}>
+              <option value="100201">Online Banking</option>
+              <option value="100202">Scan Code</option>
             </Input>
           </FormGroup>
         </Col>
+        {
+          methodType == "100201" ? (
+            <Col xl={12} lg={12} md={12}>
+              <FormGroup>
+                <Label for="exampleSelect">Payment Method</Label>
+                <Input type="select" name="method" id="exampleSelect" value={method} onChange={(e => setMethod(e.target.value))}>
+                  <option value="BAY">Bank of Ayudhya</option>
+                  <option value="KTB">Krung Thai Bank</option>
+                  <option value="KBANK">Kasikornbank</option>
+                  <option value="BBL">BANGKOK BANK</option>
+                </Input>
+              </FormGroup>
+            </Col>
+          ) : (
+              <Col xl={12} lg={12} md={12}>
+                <FormGroup>
+                  <Label for="exampleSelect">Payment Method</Label>
+                  <Input type="select" name="method" id="exampleSelect" value={method} onChange={(e => setMethod(e.target.value))}>
+                    <option value="KBANK">Kasikornbank</option>
+                    <option value="BBL">BANGKOK BANK</option>
+                    <option value="BAAC">Bank for Agriculture and Agricultural Cooperatives</option>
+                    <option value="BOT">Bank of Thailand</option>
+                    <option value="KTB">Krung Thai Bank</option>
+                    <option value="TMB">TMB BANK</option>
+                    <option value="SCB">The Siam Commercial Bank</option>
+                    <option value="CIMBT">CIMB Thai Bank</option>
+                    <option value="UOB">United Overseas Bank</option>
+                    <option value="BAY">Bank of Ayudhya</option>
+                    <option value="GSB">Government Savings Bank</option>
+                    <option value="GHB">Government Housing Bank</option>
+                    <optopn value="EXIM">Export-Import Bank of Thailand</optopn>
+                    <option value="TBANK">Thanachart Bank</option>
+                    <option value="ISBT">Islamic Bank of Thailand</option>
+                    <option value="TISCO">TISCO Bank</option>
+                    <option value="KKP">KIATNAKIN BANK</option>
+                    <option value="ICBCT">ICBC Bank</option>
+                    <option value="TCD">Thai Credit Retail Bank</option>
+                    <option value="LHFG">LH Bank</option>
+                    <option value="SME">SME Development Bank</option>
+                    <option value="SCBT">Standard Chartered</option>
+                    <option value="CITI">Citibank Thailand</option>
+                    <option value="MEGA">mega international commercial bank</option>
+                    <option value="BOC">Bank of China (Thai)</option>
+                    <option value="ANZ">Australia and New Zealand Banking Group Limited</option>
+                    <option value="SMBT">Sumitomo Mitsui Trust Bank</option>
+                  </Input>
+                </FormGroup>
+              </Col>
+            )
+        }
+
         <Col xl={12} lg={12} md={12}>
           <InputGroup>
             <InputGroupAddon addonType="prepend">

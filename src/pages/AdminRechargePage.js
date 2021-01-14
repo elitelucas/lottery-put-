@@ -94,7 +94,7 @@ const AdminRechargePage = (props) => {
         {
           (list && list.length>0) ?
           list.map((ele,key)=>(
-            <Button tag="a" className={'form-control admin-recharge-control'} color="link" onClick={toggle(key)} key={key} style={{ marginBottom: '0rem' }}>{ele.userPhone}-{ele.userNickname} : ฿ {ele.money} 
+            <Button tag="a" className={'form-control admin-recharge-control'} color="link" onClick={toggle(key)} key={key} style={{ marginBottom: '0rem' }}>{ele.userPhone}-{ele.userNickname} : $ {ele.money} 
             <br />
             {ele.orderID}
             <br />  {ele.createdAt}
@@ -182,7 +182,7 @@ const AdminRechargePage = (props) => {
                 </FormGroup>
                 <FormGroup>
                   <Label for="content1">Required amounts</Label>
-                  <Input type="text" disabled value={"฿"+list[view].money} name="content" id="content1" className='form-control'/>               
+                  <Input type="text" disabled value={"$"+list[view].money} name="content" id="content1" className='form-control'/>               
                 </FormGroup>
                 <FormGroup>
                   <Label for="history">Transaction History</Label>

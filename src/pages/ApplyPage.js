@@ -56,7 +56,7 @@ const ApplyPage = (props) => {
                 <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>Apply to Balance</span>
                 <br />
                 <span className='ml-2'>{ele.createdAt} </span>
-                <span style={{ float: 'right', color: "green", fontSize: '1.2rem' }}>฿ {ele.money}</span></div>
+                <span style={{ float: 'right', color: "green", fontSize: '1.2rem' }}>$ {ele.money}</span></div>
 
             ))
 

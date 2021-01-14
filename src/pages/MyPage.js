@@ -85,7 +85,7 @@ const MyPage = (props) => {
           <span style={{fontWeight:'200'}}>ID: {JSON.parse(localStorage.getItem('auth')).user._id}</span>
         </div>
         <div style={{clear:'both',padding:"0 12px",fontSize:'1.4rem'}}>Mobile: {JSON.parse(localStorage.getItem('auth')).user.phone}</div>
-        <div style={{padding:"0 12px",fontSize:'1.4rem'}}>Available Balance: ฿{JSON.parse(localStorage.getItem('auth')).user.budget} </div>
+        <div style={{padding:"0 12px",fontSize:'1.4rem'}}>Available Balance: ${JSON.parse(localStorage.getItem('auth')).user.budget} </div>
         <div style={{padding:"0 12px"}}>
           <Link className={'btn btn-primary'}  color="link" to="/my/recharge"  >Recharge</Link>&nbsp;
           <Button onClick={()=>setNickname({...nickname,isOpen:true})}  color="warning">Change Nick Name</Button>

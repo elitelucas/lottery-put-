@@ -688,7 +688,7 @@ class EnjoyPage extends React.Component {
       return (
         <Page
           className="EnjoyPage"
-          title={"Available Balance : ฿" + this.state.bet[0]}
+          title={"Available Balance : $" + this.state.bet[0]}
           breadcrumbs={
             (JSON.parse(localStorage.getItem('auth')).user.admin === true && JSON.parse(localStorage.getItem('auth')).user.superAdmin === true) ? (
               <div style={{ 'width': '100%' }}>
@@ -735,14 +735,14 @@ it 20 betting opportunities in ONE HOUR, to a total of 480 Bets in 24HOURS.</spa
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529', background: 'white' }}>Example
-                  if you spend ฿ 100 to bet, there is always a 2% deduction on every Bet
+                  if you spend $ 100 to bet, there is always a 2% deduction on every Bet
 amount that goes to the referral, the 2% goes to whoever refers you to this <b>Lottery</b>,
 so the more you refer people and they are placing bet on this <b>Lottery</b> the
 more you making 2% on each bet that your referrals are placing on this <b>Lottery</b>.</span><span
                     style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
-                    <span style={{ background: 'white' }}>Now after deducting the 2% from your ฿ 100
+                    <span style={{ background: 'white' }}>Now after deducting the 2% from your $ 100
                     , you will be having 98% left, so your bet is based on the 98% of the
-                    ฿ 100 which will be ฿ 98. </span><br />
+                    $ 100 which will be $ 98. </span><br />
                     <span style={{ background: 'white' }}>Now to place bet you can choose from the 4 Games
 that we have on our system. </span></span></p>
 
@@ -751,10 +751,10 @@ that we have on our system. </span></span></p>
                   <span style={{ background: 'white' }}>(1) <b>Bet on GREEN</b>: click on the Green tab
 and a pop up will come up which gives you the opportunity to select your
 betting amount of your choice and the number of betting that you feel
-comfortable with, so if you decided to place the bet with the above ฿ 98 on a
-Single bet number *1* then you only pay ฿ 98, if you increase your Bet number to
-Double bet number *2* it means you placing bet with ฿ 196, and if you decided to
-place your bet on triple bet number *3* it means you placing bet with ฿ 294. </span></span></p>
+comfortable with, so if you decided to place the bet with the above $ 98 on a
+Single bet number *1* then you only pay $ 98, if you increase your Bet number to
+Double bet number *2* it means you placing bet with $ 196, and if you decided to
+place your bet on triple bet number *3* it means you placing bet with $ 294. </span></span></p>
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529', background: 'white' }}>Please
@@ -781,13 +781,13 @@ that is different from these FOUR mentioned then you loosed the game.</span><br 
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529', background: 'white' }}>now
-                  let’s calculate your Profit on the Investment, based on your above ฿ 98
-                  if you bet on single then you will get (฿ 98 × 2 = ฿ 196) if you bet on double
-                  number which is a total bet of ฿ 296 then it means your profit on the investment
-will be (฿ 296 × 2 = ฿ 592)</span><span style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
+                  let’s calculate your Profit on the Investment, based on your above $ 98
+                  if you bet on single then you will get ($ 98 × 2 = $ 196) if you bet on double
+                  number which is a total bet of $ 296 then it means your profit on the investment
+will be ($ 296 × 2 = $ 592)</span><span style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
                     <span style={{ background: 'white' }}>The Winning code number on <b>Bet on GREEN is 2</b>,
 so it means you have to multiple your Bet amount by 2 to get your winning
-amount, if you place bet with ฿ 500 it means you getting ฿ 1,000 winning.</span><br />
+amount, if you place bet with $ 500 it means you getting $ 1,000 winning.</span><br />
                     <span style={{ background: 'white' }}>And if the result shows 5, then your winning
                     code number is 1.5, you will have to calculate your betting amount by 1.5 to
 give you your winning amount if the result shows 5. </span></span></p>
@@ -797,10 +797,10 @@ give you your winning amount if the result shows 5. </span></span></p>
                   <span style={{ background: 'white' }}>(2) <b>Bet on VIOLET</b>: click on the Violet
 tab and a pop up will come up which gives you the opportunity to select your
 betting amount of your choice and the number of betting that you feel
-comfortable with, so if you decided to place the bet with the above ฿ 98 on a
-Single bet number *1* then you only pay ฿ 98, if you increase your Bet number to
-Double bet number *2* it means you placing bet with ฿ 196, and if you decided to
-place your bet on triple bet number *3* it means you placing bet with ฿ 294.
+comfortable with, so if you decided to place the bet with the above $ 98 on a
+Single bet number *1* then you only pay $ 98, if you increase your Bet number to
+Double bet number *2* it means you placing bet with $ 196, and if you decided to
+place your bet on triple bet number *3* it means you placing bet with $ 294.
 Please note that you have only 2mins 30secs only to place your bet otherwise
 the bet will close after 2mins 30secs and result comes up within the next 30
 seconds which makes it 3mins and another new game start again after every
@@ -823,23 +823,23 @@ is different from these two mentioned then you loosed the game.</span><br />
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529', background: 'white' }}>now
-                  let’s calculate your Profit on the Investment, based on your above ฿ 98
-                  if you bet on single then you will get (฿ 98 × 4.5 = ฿ 441) if you bet on double
-                  number which is a total bet of ฿ 296 then it means your profit on the investment
-will be (฿ 296 × 4.5 = ฿ 882)</span><span style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
+                  let’s calculate your Profit on the Investment, based on your above $ 98
+                  if you bet on single then you will get ($ 98 × 4.5 = $ 441) if you bet on double
+                  number which is a total bet of $ 296 then it means your profit on the investment
+will be ($ 296 × 4.5 = $ 882)</span><span style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
                     <span style={{ background: 'white' }}>The Winning code number on <b>Bet on VIOLET</b>
 is 4.5, so it means you have to multiple your Bet amount by 4.5 to get your
-winning amount, if you place bet with ฿ 500 it means you getting ฿ 2,250 winning.</span></span></p>
+winning amount, if you place bet with $ 500 it means you getting $ 2,250 winning.</span></span></p>
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
                   <span style={{ background: 'white' }}>(3) <b>Bet on RED:</b> click on the Red tab and
 a pop up will come up which gives you the opportunity to select your betting
 amount of your choice and the number of betting that you feel comfortable with,
-so if you decided to place the bet with the above ฿ 98 on a Single bet number
-*1* then you only pay ฿ 98, if you increase your Bet number to Double bet number
-*2* it means you placing bet with ฿ 196, and if you decided to place your bet on
-triple bet number *3* it means you placing bet with ฿ 294. </span></span></p>
+so if you decided to place the bet with the above $ 98 on a Single bet number
+*1* then you only pay $ 98, if you increase your Bet number to Double bet number
+*2* it means you placing bet with $ 196, and if you decided to place your bet on
+triple bet number *3* it means you placing bet with $ 294. </span></span></p>
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529', background: 'white' }}>Please
@@ -865,13 +865,13 @@ number that is different from these FOUR mentioned then you loosed the game.</sp
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529', background: 'white' }}>now
-                  let’s calculate your Profit on the Investment, based on your above ฿ 98 
-                  if you bet on single then you will get (฿ 98 × 2 = ฿ 196) if you bet on double
-                  number which is a total bet of ฿ 296 then it means your profit on the investment
-will be (฿ 296 × 2 = ฿ 592)</span><span style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
+                  let’s calculate your Profit on the Investment, based on your above $ 98 
+                  if you bet on single then you will get ($ 98 × 2 = $ 196) if you bet on double
+                  number which is a total bet of $ 296 then it means your profit on the investment
+will be ($ 296 × 2 = $ 592)</span><span style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
                     <span style={{ background: 'white' }}>The Winning code number on <b>Bet on RED</b> is
 2, so it means you have to multiple your Bet amount by 2 to get your winning
-amount, if you place bet with ฿ 500 it means you getting ฿ 1,000 winning.</span><br />
+amount, if you place bet with $ 500 it means you getting $ 1,000 winning.</span><br />
                     <span style={{ background: 'white' }}>And if the result shows 0, then your winning
                     code number is 1.5, you will have to calculate your betting amount by 1.5 to
 give you your winning amount. </span></span></p>
@@ -883,11 +883,11 @@ will see there are number from <i>0 to 9</i>, click on any of the number that
 you wish to place bet on, it can be <i>0 or 1 or 2 or 3 or 4 or 5 or 6 or 7 or
 8 or 9</i> and a pop up will come up which gives you the opportunity to select
 your betting amount of your choice and the number of betting that you feel
-comfortable with, so if you decided to place the bet with the above ฿ 98 on a
-Single bet number *1* it means you placing bet with ฿ 98, if you increase your
-Bet number to Double bet number *2* it means you placing bet with ฿ 196, and if
+comfortable with, so if you decided to place the bet with the above $ 98 on a
+Single bet number *1* it means you placing bet with $ 98, if you increase your
+Bet number to Double bet number *2* it means you placing bet with $ 196, and if
 you decided to place your bet on triple bet number *3* it means you placing bet
-with ฿ 294. </span></span></p>
+with $ 294. </span></span></p>
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529', background: 'white' }}>Please
@@ -912,13 +912,13 @@ different from number you place bet on then you loosed the game.</span><br />
 
                 <p style={{ textAlign: 'center' }}><span
                   style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529', background: 'white' }}>now
-                  let’s calculate your Profit on the Investment, based on your above ฿ 98
-                  if you bet on single then you will get (฿ 98 × 9 = ฿ 882) if you bet on double
-                  number which is a total bet of ฿ 296 then it means your profit on the investment
-will be (฿ 296 × 9 = ฿ 1,764)</span><span style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
+                  let’s calculate your Profit on the Investment, based on your above $ 98
+                  if you bet on single then you will get ($ 98 × 9 = $ 882) if you bet on double
+                  number which is a total bet of $ 296 then it means your profit on the investment
+will be ($ 296 × 9 = $ 1,764)</span><span style={{ fontSize: '12.0pt', lineHeight: '115%', color: '#212529' }}><br />
                     <span style={{ background: 'white' }}>The Winning code number on <b>Bet on NUMBER is 9</b>,
 so it means you have to multiple your Bet amount by 9 to get your winning
-amount, if you place bet with ฿ 500 it means you getting ฿ 4,500 winning.</span><br />
+amount, if you place bet with $ 500 it means you getting $ 4,500 winning.</span><br />
                     <br />
                     <b><span style={{ background: 'white' }}>HOW TO WITHDRAW YOUR MONEY:</span><br />
                     </b><span style={{ background: 'white' }}>In order for you to withdraw your money, you
@@ -1078,40 +1078,40 @@ withdrawal options coming soon.</span></p>
                       <Row style={{ flexFlow: "row wrap", "justifyContent": "space-between" }}>
 
                         <Button color="success" onClick={this.onButtonClick(10)}>
-                          <span>Join Green</span><br /><span style={{ color: "gold" }}>{this.state.bet[1][10]}฿</span></Button>
+                          <span>Join Green</span><br /><span style={{ color: "gold" }}>{this.state.bet[1][10]}$</span></Button>
 
                         <Button color="primary" className="btn-violet" onClick={this.onButtonClick(12)}>
-                          <span>Join Violet</span><br /><span style={{ color: "gold" }}>{this.state.bet[1][12]}฿</span></Button>
+                          <span>Join Violet</span><br /><span style={{ color: "gold" }}>{this.state.bet[1][12]}$</span></Button>
 
                         <Button color="secondary" onClick={this.onButtonClick(11)}>
-                          <span>Join Red</span><br /><span style={{ color: "gold" }}>{this.state.bet[1][11]}฿</span></Button>
+                          <span>Join Red</span><br /><span style={{ color: "gold" }}>{this.state.bet[1][11]}$</span></Button>
 
 
                       </Row>
                       <Row style={{ flexFlow: "row wrap", "justifyContent": "space-between" }}>
 
-                        <Button onClick={this.onButtonClick(0)} color="success" style={{ "border": "0px", "background": "-webkit-gradient(linear,left top,right bottom,from(#fc5c7d),color-stop(50%,#fc5c7d),color-stop(51%,#9c27b0),to(#9c27b0))", "background": "linear-gradient(to bottom right,#fc5c7d 0,#fc5c7d 50%,#9c27b0 51%,#9c27b0)" }}> 0 : <span style={{ color: "gold" }}>{this.state.bet[1][0]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(0)} color="success" style={{ "border": "0px", "background": "-webkit-gradient(linear,left top,right bottom,from(#fc5c7d),color-stop(50%,#fc5c7d),color-stop(51%,#9c27b0),to(#9c27b0))", "background": "linear-gradient(to bottom right,#fc5c7d 0,#fc5c7d 50%,#9c27b0 51%,#9c27b0)" }}> 0 : <span style={{ color: "gold" }}>{this.state.bet[1][0]}$ </span></Button>
 
-                        <Button onClick={this.onButtonClick(1)} color="success" style={{ "border": "0px" }}> 1 : <span style={{ color: "gold" }}>{this.state.bet[1][1]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(1)} color="success" style={{ "border": "0px" }}> 1 : <span style={{ color: "gold" }}>{this.state.bet[1][1]}$ </span></Button>
 
-                        <Button onClick={this.onButtonClick(2)} color="secondary" style={{ "border": "0px" }}> 2 : <span style={{ color: "gold" }}>{this.state.bet[1][2]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(2)} color="secondary" style={{ "border": "0px" }}> 2 : <span style={{ color: "gold" }}>{this.state.bet[1][2]}$ </span></Button>
 
-                        <Button onClick={this.onButtonClick(3)} color="success" style={{ "border": "0px" }}> 3 : <span style={{ color: "gold" }}>{this.state.bet[1][3]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(3)} color="success" style={{ "border": "0px" }}> 3 : <span style={{ color: "gold" }}>{this.state.bet[1][3]}$ </span></Button>
 
-                        <Button onClick={this.onButtonClick(4)} color="secondary" style={{ "border": "0px" }}> 4 : <span style={{ color: "gold" }}>{this.state.bet[1][4]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(4)} color="secondary" style={{ "border": "0px" }}> 4 : <span style={{ color: "gold" }}>{this.state.bet[1][4]}$ </span></Button>
 
                       </Row>
                       <Row style={{ flexFlow: "row wrap", "justifyContent": "space-between" }}>
 
-                        <Button onClick={this.onButtonClick(5)} color="success" style={{ "border": "0px", "background": "-webkit-gradient(linear,left top,right bottom,from(#45b649),color-stop(50%,#45b649),color-stop(51%,#9c27b0),to(#9c27b0))", "background": "linear-gradient(to bottom right,#45b649 0,#45b649 50%,#9c27b0 51%,#9c27b0)" }}> 5 : <span style={{ color: "gold" }}>{this.state.bet[1][5]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(5)} color="success" style={{ "border": "0px", "background": "-webkit-gradient(linear,left top,right bottom,from(#45b649),color-stop(50%,#45b649),color-stop(51%,#9c27b0),to(#9c27b0))", "background": "linear-gradient(to bottom right,#45b649 0,#45b649 50%,#9c27b0 51%,#9c27b0)" }}> 5 : <span style={{ color: "gold" }}>{this.state.bet[1][5]}$ </span></Button>
 
-                        <Button onClick={this.onButtonClick(6)} color="secondary" style={{ "border": "0px" }}> 6 : <span style={{ color: "gold" }}>{this.state.bet[1][6]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(6)} color="secondary" style={{ "border": "0px" }}> 6 : <span style={{ color: "gold" }}>{this.state.bet[1][6]}$ </span></Button>
 
-                        <Button onClick={this.onButtonClick(7)} color="success" style={{ "border": "0px" }}> 7 : <span style={{ color: "gold" }}>{this.state.bet[1][7]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(7)} color="success" style={{ "border": "0px" }}> 7 : <span style={{ color: "gold" }}>{this.state.bet[1][7]}$ </span></Button>
 
-                        <Button onClick={this.onButtonClick(8)} color="secondary" style={{ "border": "0px" }}> 8 : <span style={{ color: "gold" }}>{this.state.bet[1][8]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(8)} color="secondary" style={{ "border": "0px" }}> 8 : <span style={{ color: "gold" }}>{this.state.bet[1][8]}$ </span></Button>
 
-                        <Button onClick={this.onButtonClick(9)} color="success" style={{ "border": "0px" }}> 9 : <span style={{ color: "gold" }}>{this.state.bet[1][9]}฿ </span></Button>
+                        <Button onClick={this.onButtonClick(9)} color="success" style={{ "border": "0px" }}> 9 : <span style={{ color: "gold" }}>{this.state.bet[1][9]}$ </span></Button>
 
                       </Row>
                       {/* <Row>

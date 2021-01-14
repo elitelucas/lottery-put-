@@ -62,11 +62,11 @@ const WithdrawlPage = (props) => {
 
       <Row>
         <Col md={12} style={{ textAlign: 'center' }} className={'mt-3'}>
-          <h3>Balance: ฿ {total}</h3>
+          <h3>Balance: $ {total}</h3>
         </Col>
         <Col xl={12} lg={12} md={12}>
           <InputGroup>
-            <InputGroupAddon addonType="prepend"><span className="input-group-text">฿</span></InputGroupAddon>
+            <InputGroupAddon addonType="prepend"><span className="input-group-text">$</span></InputGroupAddon>
             <Input value={amount} type="number" max={parseFloat(auth.user.budget)} placeholder="Enter withdrawal amount" onChange={(e) => { setAmount(e.target.value) }} />
           </InputGroup>
           <span style={{ fontSize: '0.7rem', fontWeight: '300', marginLeft: '30px' }}>Fee {Math.floor(amount * 0.03)} , to account {Math.ceil(amount * 0.97)}</span>
@@ -90,7 +90,7 @@ const WithdrawlPage = (props) => {
           <InputGroup>
             <InputGroupAddon addonType="prepend"><span className="input-group-text">Bank Code</span></InputGroupAddon>
             <Input type="select" name="method" value={bankCode} onChange={(e) => setBankCode(e.target.value)}>
-            <option value="KBANK">Kasikornbank</option>
+              <option value="KBANK">Kasikornbank</option>
               <option value="BBL">BANGKOK BANK</option>
               <option value="BAAC">Bank for Agriculture and Agricultural Cooperatives</option>
               <option value="BOT">Bank of Thailand</option>
@@ -113,11 +113,11 @@ const WithdrawlPage = (props) => {
               <option value="SME">SME Development Bank</option>
               <option value="SCBT">Standard Chartered</option>
               <option value="CITI">Citibank Thailand</option>
-              <option value="MEGA">mega international commercial bank</option>              
+              <option value="MEGA">mega international commercial bank</option>
               <option value="BOC">Bank of China (Thai)</option>
               <option value="ANZ">Australia and New Zealand Banking Group Limited</option>
               <option value="SMBT">Sumitomo Mitsui Trust Bank</option>
-             
+
             </Input>
           </InputGroup>
         </Col>

@@ -58,7 +58,7 @@ const PromotionListPage = (props) => {
                 <span style={{ float: 'left', fontSize: '2rem' }}>
                   {ele.applied ? (<FaRegCheckCircle style={{ color: "green" }} />) : (<FaRegTimesCircle style={{ color: "red" }} />)}
                 </span>
-                <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>฿ {ele.money}{' '} {ele.applied ? 'Applied' : 'Not applied'}</span>
+                <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>$ {ele.money}{' '} {ele.applied ? 'Applied' : 'Not applied'}</span>
                 <br />
                 <span className='ml-2'> {ele.createdAt} </span>
               </div>
@@ -68,7 +68,7 @@ const PromotionListPage = (props) => {
                     <span style={{ float: 'left', fontSize: '2rem' }}>
                       {ele.applied ? (<FaRegCheckCircle style={{ color: "green" }} />) : (<FaRegTimesCircle style={{ color: "red" }} />)}
                     </span>
-                    <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>฿ {ele.money} {' '} {ele.applied ? 'Applied' : 'Not applied'}</span>
+                    <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>$ {ele.money} {' '} {ele.applied ? 'Applied' : 'Not applied'}</span>
                     <br />
                     <span className='ml-2'>{ele.createdAt}</span>
                   </div>

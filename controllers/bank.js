@@ -6,6 +6,29 @@ const Recharge = require("../models/Recharge");
 const Recharging = require("../models/Recharging");
 const unirest = require('unirest');
 var crypto = require('crypto');
+const axios = require("axios");
+var usd_baht = 1;
+
+axios.get(`http://data.fixer.io/api/latest?access_key=${process.env.FIXER}&symbols=usd,thb`)
+    .then((res) => {
+        // console.log(res);
+        usd_baht = res.data.rates.USD / res.data.rates.THB;
+        // console.log(usd_baht);
+    })
+    .catch((error) => {
+        console.error(error)
+    });
+setInterval(() => {
+    axios.get(`http://data.fixer.io/api/latest?access_key=${process.env.FIXER}&symbols=usd,thb`)
+        .then((res) => {
+            usd_baht = res.data.rates.USD / res.data.rates.THB;
+            // console.log(usd_baht);
+        })
+        .catch((error) => {
+            console.error(error)
+        });
+}, 3600000*8);
+
 exports.postBank = (req, res, next) => {
 
     const comp = req.body;
@@ -41,15 +64,15 @@ exports.deleteBank = (req, res, next) => {
 
 exports.postWithdrawl = async (req, res, next) => {
     const amount = Math.abs(parseFloat(req.body.amount));
-    if(amount<300 || amount>10000){
-        return res.status(400).json({ error: "Withdrawal allowed : ฿ 300~10000" });
+    if(amount<100 || amount>1000){
+        return res.status(400).json({ error: "Withdrawal allowed : $ 100~1000" });
     }
     const user = await User.findById(req.userFromToken._id);
     if (user.withdrawals > user.bets) {
         return res.status(400).json({
-            error: `Amount of bet = ฿ ${user.withdrawals} 
-        Valid bet = ฿ ${user.bets}
-        Pending bet= ฿ ${user.withdrawals - user.bets}`
+            error: `Amount of bet = $ ${user.withdrawals} 
+        Valid bet = $ ${user.bets}
+        Pending bet= $ ${user.withdrawals - user.bets}`
         });
     }
     const isMatch = await bcrypt.compare(req.body.password, user.password);
@@ -132,7 +155,7 @@ exports.postAdminWithdrawl = async (req, res, next) => {
                 ccy_no: "THB",
                 mer_no: process.env.PAYMENT_NO,
                 mer_order_no: req.body.id,
-                order_amount: withdrawl.order_amount,
+                order_amount: Math.floor(withdrawl.order_amount/usd_baht),
                 province: withdrawl.province,
                 summary: withdrawl.summary
             };
@@ -294,19 +317,19 @@ exports.postRecharge = async (req, res, next) => {
     if (amount === "" || req.body.email === "") {
         return res.status(400).json({ error: "Please input correct data" });
     }
-    if(amount<100 || amount>10000){
-        return res.status(400).json({ error: "Recharge allowed : ฿ 100~10000" });
+    if(amount<50){
+        return res.status(400).json({ error: "More than 50$ recharged allowed" });
     }
     const user = await User.findById(req.userFromToken._id)
     const comp = {};
     comp.user = req.userFromToken._id;
-    comp.order_amount = Math.abs(parseFloat(amount));
+    comp.order_amount = amount;
     comp.pname = req.body.name;
     comp.pemail = req.body.email;
     comp.phone = req.body.phone;
     comp.accNo = req.body.accNo;
     comp.bankCode = req.body.method;
-    comp.busi_code=100201;
+    comp.busi_code=req.body.methodType;
     user.email = req.body.email;
     const saved = await user.save();
     const data = await new Recharging(comp).save();
@@ -325,7 +348,7 @@ exports.postRecharge = async (req, res, next) => {
         mer_no: process.env.PAYMENT_NO,
         mer_order_no: data.id,
         notifyUrl: process.env.APP_URL + "api/notify-recharge",
-        order_amount: data.order_amount,
+        order_amount: Math.abs(Math.ceil(data.order_amount/usd_baht)),
         pageUrl: process.env.APP_URL + "api/response-recharge",
         pemail: data.pemail,
         phone: data.phone,

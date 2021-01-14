@@ -51,7 +51,7 @@ const PromotionPage = (props) => {
   };
   const apply = () => {
     if (parseInt(bonus.total) < 100)
-      alert('Less than ฿ 100');
+      alert('Less than $ 100');
     else
       (async () => {
         try {
@@ -101,7 +101,7 @@ const PromotionPage = (props) => {
           </div>
           <div style={{ display: 'inline-block' }} className={'ml-5'}>Contribution
           <br />
-          ฿ {bonus && bonus.total}
+          $ {bonus && bonus.total}
           </div>
         </Col>
         <Col md={12} className={'mt-4 ml-3 mr-3'} >
