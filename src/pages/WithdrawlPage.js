@@ -62,11 +62,11 @@ const WithdrawlPage = (props) => {
 
       <Row>
         <Col md={12} style={{ textAlign: 'center' }} className={'mt-3'}>
-          <h3>Balance: ₹ {total}</h3>
+          <h3>Balance: ฿ {total}</h3>
         </Col>
         <Col xl={12} lg={12} md={12}>
           <InputGroup>
-            <InputGroupAddon addonType="prepend"><span className="input-group-text">₹</span></InputGroupAddon>
+            <InputGroupAddon addonType="prepend"><span className="input-group-text">฿</span></InputGroupAddon>
             <Input value={amount} type="number" max={parseFloat(auth.user.budget)} placeholder="Enter withdrawal amount" onChange={(e) => { setAmount(e.target.value) }} />
           </InputGroup>
           <span style={{ fontSize: '0.7rem', fontWeight: '300', marginLeft: '30px' }}>Fee {Math.floor(amount * 0.03)} , to account {Math.ceil(amount * 0.97)}</span>
@@ -90,36 +90,34 @@ const WithdrawlPage = (props) => {
           <InputGroup>
             <InputGroupAddon addonType="prepend"><span className="input-group-text">Bank Code</span></InputGroupAddon>
             <Input type="select" name="method" value={bankCode} onChange={(e) => setBankCode(e.target.value)}>
-            <option value="KBANK">KASIKORNBANK PCL</option>
-              <option value="BBL">BANGKOK BANK PUBLIC COMPANY LTD.</option>
-              <option value="BAAC">BANK FOR AGRICULTURE AND AGRICULTURAL CO-OPERATIVES</option>
-              <option value="BOA">BANK OF AMERICA NT&SA</option>
-              <option value="BAY">BANK OF AYUDHAYA PUBLIC COMPANY LTD.</option>
-              <option value="BOC">Bank of China (Thai) PCL</option>
-              <option value="BNPP">BNP PARIBAS BANGKOK BRANCH</option>
-              <option value="CIMB">CIMB THAI BANK PUBLIC COMPANY LTD.</option>
-              <option value="CITI">CITI BANK N.A.</option>
-              <option value="DB">Deutsche Bank AG</option>
-              <option value="GHB">GOVERNMENT HOUSING BANK</option>
-              <option value="ICBC">INDUSTRIAL AND COMMERCIAL BANK OF CHINA (THAI) PCL</option>
-              <option value="TIBT">ISLAMIC BANK OF THAILAND</option>
-              <option value="CHAS">JPMorgan Chase Bank, Bangkok Branch</option>
-              <option value="KKB">KIATNAKIN BANK PCL</option>
-              <option value="KTB">KRUNG THAI BANK PUBLIC COMPANY LTD.</option>
-              <option value="LHBA">Land and Houses Bank</option>
-              <option value="MEGA">MEGA INTERNATIONAL COMMERCIAL BANK</option>
-              <option value="MHCB">MIZUHO CORPORATE BANK</option>
-              <option value="SCBT">STANDARD CHARTERED BANK THAI PCL.</option>
-              <option value="SMTB">Sumitomo Mitsui Trust Bank (Thai) PCL.</option>
-              <option value="TBNK">Thanachart Bank Public Company Limited</option>
-              <option value="GSB">THE GOVERNMENT SAVING BANK</option>
-              <option value="HSBC">THE HONGKONG & SHANGHAI CORPORATION LTD.</option>
-              <option value="SCB">THE SIAM COMMERCIAL BANK PUBLIC COMPANY</option>
-              <option value="SMBC">THE SUMITOMO MITSU BANKING CORPORATION</option>
-              <option value="TCRB">THE THAI CREDIT RETAIL BANK</option>
-              <option value="TISCO">TISCO Bank PCL</option>
-              <option value="TMB">TMB BANK PUBLIC COMPANY LTD.</option>
-              <option value="UOB">UNITED OVERSEAS BANK (THAI) PUBLIC COMPANY LTD.</option>
+            <option value="KBANK">Kasikornbank</option>
+              <option value="BBL">BANGKOK BANK</option>
+              <option value="BAAC">Bank for Agriculture and Agricultural Cooperatives</option>
+              <option value="BOT">Bank of Thailand</option>
+              <option value="KTB">Krung Thai Bank</option>
+              <option value="TMB">TMB BANK</option>
+              <option value="SCB">The Siam Commercial Bank</option>
+              <option value="CIMBT">CIMB Thai Bank</option>
+              <option value="UOB">United Overseas Bank</option>
+              <option value="BAY">Bank of Ayudhya</option>
+              <option value="GSB">Government Savings Bank</option>
+              <option value="GHB">Government Housing Bank</option>
+              <optopn value="EXIM">Export-Import Bank of Thailand</optopn>
+              <option value="TBANK">Thanachart Bank</option>
+              <option value="ISBT">Islamic Bank of Thailand</option>
+              <option value="TISCO">TISCO Bank</option>
+              <option value="KKP">KIATNAKIN BANK</option>
+              <option value="ICBCT">ICBC Bank</option>
+              <option value="TCD">Thai Credit Retail Bank</option>
+              <option value="LHFG">LH Bank</option>
+              <option value="SME">SME Development Bank</option>
+              <option value="SCBT">Standard Chartered</option>
+              <option value="CITI">Citibank Thailand</option>
+              <option value="MEGA">mega international commercial bank</option>              
+              <option value="BOC">Bank of China (Thai)</option>
+              <option value="ANZ">Australia and New Zealand Banking Group Limited</option>
+              <option value="SMBT">Sumitomo Mitsui Trust Bank</option>
+             
             </Input>
           </InputGroup>
         </Col>

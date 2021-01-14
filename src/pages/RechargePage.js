@@ -25,6 +25,7 @@ const RechargePage = props => {
   const [phone, setPhone] = useState(
     JSON.parse(localStorage.getItem('auth')).user.phone,
   );
+  const [accNo, setAccNo] = useState('');
   const [name, setName] = useState('');
   const [method, setMethod] = useState('KBANK');
   const [budget, setBudget] = useState(
@@ -50,7 +51,7 @@ const RechargePage = props => {
           'content-type': 'application/json',
           Authorization: JSON.parse(localStorage.getItem('auth')).userToken,
         },
-        body: JSON.stringify({ money, email, phone, name, method }),
+        body: JSON.stringify({ money, email, phone, name, method, accNo }),
       });
       const data = await response.json();
       if (response.status == 200) {
@@ -103,7 +104,7 @@ const RechargePage = props => {
     >
       <Row>
         <Col md={12} style={{ textAlign: 'center' }} className={'mt-3'}>
-          <h3>Balance: ₹ {budget}</h3>
+          <h3>Balance: ฿ {budget}</h3>
         </Col>
 
         {/* <Col xl={12} lg={12} md={12} style={{textAlign:'center'}}>
@@ -118,7 +119,7 @@ const RechargePage = props => {
         <Col xl={12} lg={12} md={12}>
           <InputGroup>
             <InputGroupAddon addonType="prepend">
-              <span className="input-group-text">₹</span>
+              <span className="input-group-text">฿</span>
             </InputGroupAddon>
             <Input
               value={money}
@@ -139,7 +140,7 @@ const RechargePage = props => {
             style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(100)}
           >
-            ₹ 100
+            ฿ 100
           </Button>
           <Button
             color="primary"
@@ -147,7 +148,7 @@ const RechargePage = props => {
             style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(1000)}
           >
-            ₹ 1000
+            ฿ 1000
           </Button>
           <Button
             color="primary"
@@ -155,7 +156,7 @@ const RechargePage = props => {
             style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(2000)}
           >
-            ₹ 2000
+            ฿ 2000
           </Button>
           <Button
             color="primary"
@@ -163,7 +164,7 @@ const RechargePage = props => {
             style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(5000)}
           >
-            ₹ 5000
+            ฿ 5000
           </Button>
           <Button
             color="primary"
@@ -171,7 +172,7 @@ const RechargePage = props => {
             style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(10000)}
           >
-            ₹ 10000
+            ฿ 10000
           </Button>
           <Button
             color="primary"
@@ -179,7 +180,7 @@ const RechargePage = props => {
             style={{ width: '80px', padding: '4px 4px' }}
             onClick={() => setMoney(15000)}
           >
-            ₹ 15000
+            ฿ 15000
           </Button>
         </Col>
         <Col xl={12} lg={12} md={12}>
@@ -228,38 +229,29 @@ const RechargePage = props => {
           <FormGroup>
             <Label for="exampleSelect">Payment Method</Label>
             <Input type="select" name="method" id="exampleSelect" value={method} onChange={(e => setMethod(e.target.value))}>
-              <option value="KBANK">KASIKORNBANK PCL</option>
-              <option value="BBL">BANGKOK BANK PUBLIC COMPANY LTD.</option>
-              <option value="BAAC">BANK FOR AGRICULTURE AND AGRICULTURAL CO-OPERATIVES</option>
-              <option value="BOA">BANK OF AMERICA NT&SA</option>
-              <option value="BAY">BANK OF AYUDHAYA PUBLIC COMPANY LTD.</option>
-              <option value="BOC">Bank of China (Thai) PCL</option>
-              <option value="BNPP">BNP PARIBAS BANGKOK BRANCH</option>
-              <option value="CIMB">CIMB THAI BANK PUBLIC COMPANY LTD.</option>
-              <option value="CITI">CITI BANK N.A.</option>
-              <option value="DB">Deutsche Bank AG</option>
-              <option value="GHB">GOVERNMENT HOUSING BANK</option>
-              <option value="ICBC">INDUSTRIAL AND COMMERCIAL BANK OF CHINA (THAI) PCL</option>
-              <option value="TIBT">ISLAMIC BANK OF THAILAND</option>
-              <option value="CHAS">JPMorgan Chase Bank, Bangkok Branch</option>
-              <option value="KKB">KIATNAKIN BANK PCL</option>
-              <option value="KTB">KRUNG THAI BANK PUBLIC COMPANY LTD.</option>
-              <option value="LHBA">Land and Houses Bank</option>
-              <option value="MEGA">MEGA INTERNATIONAL COMMERCIAL BANK</option>
-              <option value="MHCB">MIZUHO CORPORATE BANK</option>
-              <option value="SCBT">STANDARD CHARTERED BANK THAI PCL.</option>
-              <option value="SMTB">Sumitomo Mitsui Trust Bank (Thai) PCL.</option>
-              <option value="TBNK">Thanachart Bank Public Company Limited</option>
-              <option value="GSB">THE GOVERNMENT SAVING BANK</option>
-              <option value="HSBC">THE HONGKONG & SHANGHAI CORPORATION LTD.</option>
-              <option value="SCB">THE SIAM COMMERCIAL BANK PUBLIC COMPANY</option>
-              <option value="SMBC">THE SUMITOMO MITSU BANKING CORPORATION</option>
-              <option value="TCRB">THE THAI CREDIT RETAIL BANK</option>
-              <option value="TISCO">TISCO Bank PCL</option>
-              <option value="TMB">TMB BANK PUBLIC COMPANY LTD.</option>
-              <option value="UOB">UNITED OVERSEAS BANK (THAI) PUBLIC COMPANY LTD.</option>
+              <option value="BAY">Bank of Ayudhya</option>
+              <option value="KTB">Krung Thai Bank</option>
+              <option value="KBANK">Kasikornbank</option>
+              <option value="BBL">BANGKOK BANK</option>
+
+
+
             </Input>
           </FormGroup>
+        </Col>
+        <Col xl={12} lg={12} md={12}>
+          <InputGroup>
+            <InputGroupAddon addonType="prepend">
+              <span className="input-group-text">Bank Account Number</span>
+            </InputGroupAddon>
+            <Input
+              value={accNo}
+              placeholder="Write your bank account number"
+              onChange={e => {
+                setAccNo(e.target.value);
+              }}
+            />
+          </InputGroup>
         </Col>
         <Col md={12} style={{ textAlign: 'center' }} className={'mt-3'}>
           {!isLoading ? (

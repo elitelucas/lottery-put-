@@ -136,7 +136,7 @@ const AdminReward = (props) => {
           list.map((ele,key)=>(
           <div className={'form-control'} key={key} style={{ marginBottom: '0rem',height:'100px'}}>
             <span>https://www.luckyweb.shop/api/reward/{ele._id}</span><br />
-            <span>₹ {ele.money} </span><br />
+            <span>฿ {ele.money} </span><br />
             <span>Phone : {ele.userphone}</span>
             {' '}&nbsp;
             <span>rewared by : {ele.createdBy ? ele.createdBy.phone : ''}</span>

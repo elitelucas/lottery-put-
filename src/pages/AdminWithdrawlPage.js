@@ -150,7 +150,7 @@ const AdminWithdrawl = (props) => {
           {
             (list && list.length > 0) ?
               list.map((ele, key) => (
-                <Button tag="a" className={'form-control'} color="link" onClick={toggle(key)} key={key} style={{ marginBottom: '0rem', height: "70px" }}>{ele.userPhone},   {ele.userNickname} : ₹ {ele.order_amount}
+                <Button tag="a" className={'form-control'} color="link" onClick={toggle(key)} key={key} style={{ marginBottom: '0rem', height: "70px" }}>{ele.userPhone},   {ele.userNickname} : ฿ {ele.order_amount}
                   <br /> ( {ele._id} )
                   <span style={{ float: 'right' }}>{ele.status == 0 ? (<FaHourglassHalf className="text-warning" />) : (
                     ele.status == 1 ? (<FaMoneyCheck className="text-success" />) : (

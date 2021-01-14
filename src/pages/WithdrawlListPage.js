@@ -65,7 +65,7 @@ const WithdrawlListPage = (props) => {
                       )
 
                     ))}</span>
-                <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>₹ {ele.order_amount} {' '}
+                <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>฿ {ele.order_amount} {' '}
                   {ele.status == 0 ? 'Checking...' : (
                     ele.status == 1 ? 'Approved, now transfering' : (
                       ele.status == -1 ? 'Declined' : 'Failed'

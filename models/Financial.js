@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const FinancialSchema = new Schema({
   type:{
     type:String,
-    enum:["Recharge","Withdrawal","Reward","Betting","Referral1","Referral2"]
+    enum:["Recharge","Withdrawal","Reward","Betting","Referral1","Referral2","Envelope"]
   },
   createdAt: {
     type: Date,

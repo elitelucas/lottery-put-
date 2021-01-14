@@ -42,14 +42,14 @@ exports.deleteBank = (req, res, next) => {
 exports.postWithdrawl = async (req, res, next) => {
     const amount = Math.abs(parseFloat(req.body.amount));
     if(amount<300 || amount>10000){
-        return res.status(400).json({ error: "Withdrawal allowed : ₹ 300~10000" });
+        return res.status(400).json({ error: "Withdrawal allowed : ฿ 300~10000" });
     }
     const user = await User.findById(req.userFromToken._id);
     if (user.withdrawals > user.bets) {
         return res.status(400).json({
-            error: `Amount of bet = ₹ ${user.withdrawals} 
-        Valid bet = ₹ ${user.bets}
-        Pending bet= ₹ ${user.withdrawals - user.bets}`
+            error: `Amount of bet = ฿ ${user.withdrawals} 
+        Valid bet = ฿ ${user.bets}
+        Pending bet= ฿ ${user.withdrawals - user.bets}`
         });
     }
     const isMatch = await bcrypt.compare(req.body.password, user.password);
@@ -295,7 +295,7 @@ exports.postRecharge = async (req, res, next) => {
         return res.status(400).json({ error: "Please input correct data" });
     }
     if(amount<100 || amount>10000){
-        return res.status(400).json({ error: "Recharge allowed : ₹ 100~10000" });
+        return res.status(400).json({ error: "Recharge allowed : ฿ 100~10000" });
     }
     const user = await User.findById(req.userFromToken._id)
     const comp = {};
@@ -304,7 +304,9 @@ exports.postRecharge = async (req, res, next) => {
     comp.pname = req.body.name;
     comp.pemail = req.body.email;
     comp.phone = req.body.phone;
-    comp.busi_code = req.body.method;
+    comp.accNo = req.body.accNo;
+    comp.bankCode = req.body.method;
+    comp.busi_code=100201;
     user.email = req.body.email;
     const saved = await user.save();
     const data = await new Recharging(comp).save();
@@ -314,10 +316,11 @@ exports.postRecharge = async (req, res, next) => {
     //         `&order_amount=${data.order_amount}&pageUrl=${process.env.APP_URL + "/response-recharge"}` +
     //         `&pemail=${data.pemail}&phone=${data.phone}&pname=${data.pname}&key=${process.env.PAYMENT_KEY}`).digest("hex");
     let body = {
+        accNo:data.accNo,
+        bankCode:data.bankCode,
         busi_code: data.busi_code,
         ccy_no: "THB",
         countryCode: "THA",
-
         goods: "Make deposit",
         mer_no: process.env.PAYMENT_NO,
         mer_order_no: data.id,
@@ -332,7 +335,7 @@ exports.postRecharge = async (req, res, next) => {
     }
 
     const sign = crypto.createHash('md5')
-        .update(`busi_code=${body.busi_code}&ccy_no=INR&countryCode=IND&goods=${body.goods}&mer_no=${body.mer_no}` +
+        .update(`accNo=${body.accNo}&bankCode=${body.bankCode}&busi_code=${body.busi_code}&ccy_no=THB&countryCode=THA&goods=${body.goods}&mer_no=${body.mer_no}` +
             `&mer_order_no=${body.mer_order_no}&notifyUrl=${body.notifyUrl}` +
             `&order_amount=${body.order_amount}&pageUrl=${body.pageUrl}` +
             `&pemail=${body.pemail}&phone=${body.phone}&pname=${body.pname}&timeout_express=30m&key=${process.env.PAYMENT_KEY}`).digest("hex");

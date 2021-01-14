@@ -60,7 +60,7 @@ const RechargePage = (props) => {
                     (ele.status == 1 ? (<MdAccountBalanceWallet style={{ color: "#6a82fb" }} />) : (<FaRegTimesCircle style={{ color: "red" }} />))}
                 </span>
 
-                <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>₹ {ele.money} {ele.status == 1 ? 'Success' : ele.status == 0 ? 'Waiting' : "Declined"}</span>
+                <span className='ml-2 mt-2' style={{ fontSize: '1.1rem', fontWeight: '400' }}>฿ {ele.money} {ele.status == 1 ? 'Success' : ele.status == 0 ? 'Waiting' : "Declined"}</span>
                 <br />
                 <span className='ml-2'>{ele.orderID}</span>
                 <br />

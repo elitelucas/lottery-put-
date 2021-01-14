@@ -184,7 +184,7 @@ const AdminUserPage = (props) => {
               Phone verification: {user.phone_verified}
             </Col>
             <Col lg={4} sm={6} xs={12}>
-              Balance: ₹ {
+              Balance: ฿ {
                 JSON.parse(localStorage.getItem('auth')).user.superAdmin ? (
                   balanceEditable ? (
                     <>
@@ -257,7 +257,7 @@ const AdminUserPage = (props) => {
               {
                 recharges.map((ele, key) => (
                   <div key={key} className="data-content">
-                    Order No: {ele._id} &nbsp; Amount: ₹ {ele.money} &nbsp; Date: {ele.createdAt}
+                    Order No: {ele._id} &nbsp; Amount: ฿ {ele.money} &nbsp; Date: {ele.createdAt}
                   </div>
                 ))
               }
@@ -267,7 +267,7 @@ const AdminUserPage = (props) => {
               {
                 withdrawals.map((ele, key) => (
                   <div key={key} className="data-content">
-                    Order No: {ele._id} &nbsp; Amount: ₹ {ele.order_amount} &nbsp; Date: {ele.createdAt} status : {ele.status == 0 ? (<span className="text-warning">checking</span>) :
+                    Order No: {ele._id} &nbsp; Amount: ฿ {ele.order_amount} &nbsp; Date: {ele.createdAt} status : {ele.status == 0 ? (<span className="text-warning">checking</span>) :
                       (ele.status == 1 ? (<span className="text-primary">done</span>) : (ele.status == -1 ? (<span className="text-danger">declined</span>) : (<span className="text-warning">failed</span>)))}
                   </div>
                 ))
@@ -278,7 +278,7 @@ const AdminUserPage = (props) => {
               {
                 rewards.map((ele, key) => (
                   <div key={key} className="data-content">
-                    Reward No: {ele._id} &nbsp; Amount: ₹ {ele.money} &nbsp;  status : {ele.status ? (<span className="text-primary">done</span>) : (<span className="text-warning">not yet</span>)} &nbsp;  rewareded by : {ele.createdBy ? ele.createdBy.phone : ''}
+                    Reward No: {ele._id} &nbsp; Amount: ฿ {ele.money} &nbsp;  status : {ele.status ? (<span className="text-primary">done</span>) : (<span className="text-warning">not yet</span>)} &nbsp;  rewareded by : {ele.createdBy ? ele.createdBy.phone : ''}
                   </div>
                 ))
               }
@@ -288,8 +288,8 @@ const AdminUserPage = (props) => {
               {
                 enjoys.map((ele, key) => (
                   <div key={key} className="data-content">
-                    Period: {ele.period} &nbsp; Bet: ₹ {ele.contract}
-                    <br /> Select: {ele.select} &nbsp; Result: {ele.result} Price : ₹ {ele.amount}
+                    Period: {ele.period} &nbsp; Bet: ฿ {ele.contract}
+                    <br /> Select: {ele.select} &nbsp; Result: {ele.result} Price : ฿ {ele.amount}
                   </div>
                 ))
               }
@@ -299,7 +299,7 @@ const AdminUserPage = (props) => {
               {
                 user.financials.map((ele, key) => (
                   <div key={key} className="data-content">
-                    Type: {ele.type} &nbsp; Date: {ele.createdAt}  &nbsp; Amount: ₹ {ele.amount}
+                    Type: {ele.type} &nbsp; Date: {ele.createdAt}  &nbsp; Amount: ฿ {ele.amount}
                     &nbsp; {ele.details.period ? "Period : "+ ele.details.period : (ele.details.orderID ? "Order ID : "+ele.details.orderID : "")} 
                   </div>
                 ))

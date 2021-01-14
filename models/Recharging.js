@@ -8,6 +8,14 @@ const RechargingSchema = new Schema({
     required:true,
     index:true
   },  
+  accNo:{
+    type:String,
+    index:true
+  },  
+  bankCode:{
+    type:String,
+    index:true
+  },  
   pname:{
     type:String,
     index:true
