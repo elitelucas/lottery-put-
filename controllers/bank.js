@@ -438,7 +438,7 @@ exports.postNotifyRecharge = async (req, res, next) => {
             .update(data).digest("hex");
         // console.log(sign);
         // console.log(req.body.sign);
-        if (recharging && sign == req.body.sign && ip == process.env.PAYMENT_IP && req.body.status == 'SUCCESS') {
+        if (recharging && sign == req.body.sign && (ip == process.env.PAYMENT_IP1 || ip == process.env.PAYMENT_IP2) && req.body.status == 'SUCCESS') {
             // console.log('Succeed');
             const recharge = new Recharge();
             recharge.user = recharging.user;
